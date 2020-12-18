@@ -1,0 +1,2 @@
+#!/bin/bash
+gcc -MM -I GeneralUtilitiies -I RPiBaseModules *.c > depends.mk

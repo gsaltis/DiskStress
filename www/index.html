@@ -1,0 +1,49 @@
+<html>
+  <head>
+    <link href="DiskStress.png" type="image/png" rel="icon">
+    <link type="text/css" rel="stylesheet" href="style.css">
+    <script src="scripts.js"></script>
+    <script src="websocketinfo.js"></script>
+    <title>Disk Stress</title>
+  </head>
+  <body onload="CBSystemInitialize()">
+    <div id="Heading">
+    </div>
+    <div id="MainArea">
+      <div id="DiskInfoSection">
+        <div class="HeaderSmall">Disk Information</div>
+        <div id="DiskInfoTextArea">
+          <p class="DiskInfoText DiskInfoLabel DiskInfoLabel1">Total Blocks : </p>
+          <p id="DiskInfoTotalBlocks" class="DiskInfoText DiskInfoValue DiskInfoLabel1"> </p>
+          <p class="DiskInfoText DiskInfoLabel DiskInfoLabel2">Used Blocks : </p>
+          <p id="DiskInfoUsedBlocks" class="DiskInfoText DiskInfoValue DiskInfoLabel2"> </p>
+          <p class="DiskInfoText DiskInfoLabel DiskInfoLabel3">Avail Blocks : </p>
+          <p id="DiskInfoAvailBlocks" class="DiskInfoText DiskInfoValue DiskInfoLabel3"> </p>
+          <div id="DiskInfoBlocksFree" class="DiskInfoLineGraph DiskInfoLineGraphFree DiskInfoLabel4">50%</div>
+          <div id="DiskInfoBlocksUsed" class="DiskInfoLineGraph DiskInfoLineGraphUsed DiskInfoLabel4">50%</div>
+
+          <p class="DiskInfoText DiskInfoLabel DiskInfoLabel5">Total Bytes : </p>
+          <p id="DiskInfoTotalBytes" class="DiskInfoText DiskInfoValue DiskInfoLabel5"> </p>
+          <p class="DiskInfoText DiskInfoLabel DiskInfoLabel6">Used Bytes : </p>
+          <p id="DiskInfoUsedBytes" class="DiskInfoText DiskInfoValue DiskInfoLabel6"> </p>
+          <p class="DiskInfoText DiskInfoLabel DiskInfoLabel7">Avail Bytes : </p>
+          <p id="DiskInfoAvailBytes" class="DiskInfoText DiskInfoValue DiskInfoLabel7"> </p>
+          <div id="DiskInfoBytesFree" class="DiskInfoLineGraph DiskInfoLineGraphFree DiskInfoLabel8">50%</div>
+          <div id="DiskInfoBytesUsed" class="DiskInfoLineGraph DiskInfoLineGraphUsed DiskInfoLabel8">50%</div>
+
+          <p class="DiskInfoText DiskInfoLabel DiskInfoLabel9">Total INodes : </p>
+          <p id="DiskInfoTotalInodes" class="DiskInfoText DiskInfoValue DiskInfoLabel9"> </p>
+          <p class="DiskInfoText DiskInfoLabel DiskInfoLabel10">Used INodes : </p>
+          <p id="DiskInfoUsedInodes" class="DiskInfoText DiskInfoValue DiskInfoLabel10"> </p>          
+          <p class="DiskInfoText DiskInfoLabel DiskInfoLabel11">Avail INodes : </p>
+          <p id="DiskInfoAvailInodes" class="DiskInfoText DiskInfoValue DiskInfoLabel11"> </p>
+          <div id="DiskInfoInodesFree" class="DiskInfoLineGraph DiskInfoLineGraphFree DiskInfoLabel12">50%</div>
+          <div id="DiskInfoInodesUsed" class="DiskInfoLineGraph DiskInfoLineGraphUsed DiskInfoLabel12">50%</div>
+          
+        </div>
+      </div>
+    </div>
+    <div id="MessageArea">Welcome</div>
+    <div id="MainBlocker"></div>
+  </body>
+</html>

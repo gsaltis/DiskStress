@@ -1,0 +1,197 @@
+:root {
+    --GeneralBorder                     : solid 1px #840E4F;
+    --GeneralBackgroundMedium           : #DDD;
+    --GeneralBackgroundMediumDark       : #CCC;
+    --GeneralBackgroundDark             : #AAA;
+    --DiskInfoLabelHeight               : 20px;
+    --DiskInfoLabelWidth                : 150px;
+    --DiskInfoSectionWidth              : calc(var(--DiskInfoLabelWidth) * 2 - 60px);
+    --HeaderHeightSmall                 : 20px;
+}
+
+.HeaderSmall {
+    position                            : absolute;
+    top                                 : 0px;
+    left                                : 0px;
+    background                          : var(--GeneralBackgroundDark);
+    text-align                          : left;
+    padding-left                        : 10px;
+    width                               : calc(100%  - 10px);
+    font-family                         : Segoe UI;
+    font-size                           : 10pt;
+    font-weight                         : bold;
+    vertical-align                      : center;
+    border-bottom                       : var(--GeneralBorder);
+}
+
+#MainArea {
+    position                            : absolute;
+    top                                 : 10px;
+    left                                : 10px;
+    right                               : 10px;
+    top                                 : 110px;
+    bottom                              : 40px;
+    background                          : #FBFCFC;
+    border-top                          : var(--GeneralBorder);
+}
+
+#Heading {
+    position                            : absolute;
+    top                                 : 10px;
+    height                              : 80px;
+    left                                : 10px;
+    right                               : 10px;
+    background                          : #F4F6F7;
+    border-top                          : var(--GeneralBorder);
+}
+
+    
+#MessageArea {
+    position                            : absolute;
+    height                              : 20px;
+    bottom                              : 5px;
+    left                                : 10px;
+    right                               : 10px;
+    border                              : var(--ElementBorder);
+    color                               : var(--ElementFontColor);
+    font-family                         : Segoe UI;
+    font-size                           : 11pt;
+    font-weight                         : 600;
+    padding-left                        : 5px;
+}
+
+#MainBlocker {
+    position                            : absolute;
+    left                                : 10px;
+    top                                 : 10px;
+    right                               : 10px;
+    bottom                              : 30px;
+    background-image                    : url("BlockerBackground2.png");
+    opacity                             : .5
+}
+
+#DiskInfoSection {
+    position                            : absolute;
+    right                               : 0px;
+    width                               : var(--DiskInfoSectionWidth);
+    height                              : calc(var(--DiskInfoLabelHeight) * 13.5);
+    border                              : var(--GeneralBorder);
+    background                          : var(--GeneralBackgroundMedium);
+}
+
+#DiskInfoTextArea {
+    position                            : absolute;
+    left                                : 0px;
+    right                               : 0px;
+    bottom                              : 0px;
+    top                                 : var(--HeaderHeightSmall);
+}
+
+.DiskInfoText {
+    position                            : absolute;
+    width                               : var(--DiskInfoLabelWidth);
+    height                              : var(--DiskInfoLabelHeight);
+    font-family                         : Segoe UI;
+    font-size                           : 10pt;
+    line-height                         : var(--DiskInfoLabelHeight);
+    vertical-align                      : center;
+    margin                              : 0px;
+}
+
+.DiskInfoLabel {
+    left                                : 0px;
+    text-align                          : right;
+    padding-right                       : 10px;
+}
+
+.DiskInfoValue {
+    left                                : var(--DiskInfoLabelWidth);
+    text-align                          : right;
+    width                               : calc(var(--DiskInfoLabelWidth) - 80px);
+    padding-left                        : 10px;
+    color                               : #008;
+    font-size                           : 10pt;
+}
+
+.DiskInfoLineGraph {
+    position                            : absolute;
+    height                              : calc(var(--DiskInfoLabelHeight) * 2 / 3);
+    margin                              : 0px;
+    padding                             : 0px;
+    color                               : white;;
+    font-family                         : Segoe UI;
+    font-size                           : 8pt;
+    line-height                         : calc(var(--DiskInfoLabelHeight) * 2 / 3);
+    vertical-align                      : middle;
+    padding-left                        : 0px;
+    border                              : var(--GeneralBorder);
+}
+
+.DiskInfoLineGraphFree {
+    left                                : calc(var(--DiskInfoSectionWidth) / 2);
+    background                          : linear-gradient(#080 20%, #6f6 50%, #080 90%);
+    border-top-right-radius             : calc(var(--DiskInfoLabelHeight) / 4);
+    border-bottom-right-radius          : calc(var(--DiskInfoLabelHeight) / 4);
+    border-left                         : solid 0px black;
+    text-align                          : right;
+    padding-right                       : 5px;
+    right                               : 10px
+}
+
+.DiskInfoLineGraphUsed {
+    left                                : 10px;
+    background                          : linear-gradient(#800 20%, #f66 50%, #800 90%);
+    border-top-left-radius              : calc(var(--DiskInfoLabelHeight) / 4);
+    border-bottom-left-radius           : calc(var(--DiskInfoLabelHeight) / 4);
+    border-right                        : solid 0px black;
+    right                               : calc(var(--DiskInfoSectionWidth) / 2);
+}
+
+.DiskInfoLabel1 {
+    top                                 : calc(var(--DiskInfoLabelHeight) * 0);
+}
+
+.DiskInfoLabel2 {
+    top                                 : calc(var(--DiskInfoLabelHeight) * 1);
+}
+
+.DiskInfoLabel3 {
+    top                                 : calc(var(--DiskInfoLabelHeight) * 2);
+}
+
+.DiskInfoLabel4 {
+    top                                 : calc(var(--DiskInfoLabelHeight) * 3);
+}
+
+.DiskInfoLabel5 {
+    top                                 : calc(var(--DiskInfoLabelHeight) * 4);
+}
+
+.DiskInfoLabel6 {
+    top                                 : calc(var(--DiskInfoLabelHeight) * 5);
+}
+
+.DiskInfoLabel7 {
+    top                                 : calc(var(--DiskInfoLabelHeight) * 6);
+}
+
+.DiskInfoLabel8 {
+    top                                 : calc(var(--DiskInfoLabelHeight) * 7);
+}
+
+.DiskInfoLabel9 {
+    top                                 : calc(var(--DiskInfoLabelHeight) * 8);
+}
+
+.DiskInfoLabel10 {
+    top                                 : calc(var(--DiskInfoLabelHeight) * 9);
+}
+
+.DiskInfoLabel11 {
+    top                                 : calc(var(--DiskInfoLabelHeight) * 10);
+}
+
+.DiskInfoLabel12 {
+    top                                 : calc(var(--DiskInfoLabelHeight) * 11);
+}
+
