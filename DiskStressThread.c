@@ -23,6 +23,7 @@
 #include "UserInputServerThread.h"
 #include "FileInfoBlock.h"
 #include "GeneralUtilities/MemoryManager.h"
+#include "DiskInformation.h"
 
 /*****************************************************************************!
  * Local Macros
@@ -31,6 +32,12 @@
 /*****************************************************************************!
  * Local Data
  *****************************************************************************/
+static string
+diskStressDirectory = NULL;
+
+static string
+diskStressDirectoryDefault = "./";
+
 static string
 DiskStressFilenameBase = "DiskStressFile";
 
@@ -59,6 +66,7 @@ DiskStressThreadInit
 ()
 {
   diskStressFileHead = NULL;
+  diskStressDirectory = StringCopy(diskStressDirectoryDefault);
 }
 
 /*****************************************************************************!
@@ -81,24 +89,28 @@ void*
 DiskStressThread
 (void* InParameters)
 {
+  string                                fullFilename;
   long long                             filesize;
   string                                filename;
   int                                   i;
   FileInfoBlock*                        infoBlock;
-  printf("%s\"Disk Stress Thread\" started%s\n", ColorGreen, ColorReset);
+  printf("%s\"Disk Stress Thread\" started%s : %s\n", ColorGreen, ColorReset, diskStressDirectory);
   UserInputServerThreadStart();
   i = 0;
   while ( true ) {
     i++;
-    if ( i <= 5 ) {
+    if ( i <= 100 ) {
       filename = DiskStressGenFilename();
+      fullFilename = StringConcat(diskStressDirectory, filename);
       filesize = 100;
-      infoBlock = FileInfoBlockCreate(filename, filesize);
+      infoBlock = FileInfoBlockCreate(fullFilename, filesize);
       FileInfoBlockCreateFile(infoBlock);
       FreeMemory(filename);
+      FreeMemory(fullFilename);
       diskStressFileHead = FileInfoBlockAppend(diskStressFileHead, infoBlock);
     }
     sleep(5);
+    DiskInformationRefresh();
   }
 }
 
@@ -149,4 +161,21 @@ DiskStressFileList
 ()
 {
   FileInfoBlockDisplay(diskStressFileHead);
+}
+
+/*****************************************************************************!
+ * Function : DiskStressThreadSetDirectory
+ *****************************************************************************/
+void
+DiskStressThreadSetDirectory
+(string InDirectoryName)
+{
+  if ( diskStressDirectory ) {
+    FreeMemory(diskStressDirectory);
+  }
+  diskStressDirectory = StringCopy(InDirectoryName);
+  if ( StringEndsWith(diskStressDirectory, "/") ) {
+    return;
+  }
+  diskStressDirectory = StringConcatTo(diskStressDirectory, "/");
 }

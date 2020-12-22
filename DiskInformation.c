@@ -63,13 +63,14 @@ DiskInformationRefresh
     fprintf(stderr, "Could not get the volume information for %s : %s\n", DiskRootName, strerror(errno));
     exit(EXIT_FAILURE);
   }
-  
+
   DiskInfoRoot.totalBytes  = vbuf.f_blocks * 4;
-  DiskInfoRoot.freeBytes   = vbuf.f_bavail * 4;
+  DiskInfoRoot.freeBytes   = vbuf.f_bfree * 4;
   DiskInfoRoot.totalInodes  = vbuf.f_files;
   DiskInfoRoot.freeInodes   = vbuf.f_favail;
   DiskInfoRoot.totalBlocks  = vbuf.f_blocks;
-  DiskInfoRoot.freeBlocks  = vbuf.f_bavail;
+  DiskInfoRoot.freeBlocks  = vbuf.f_bfree;
+    ;
   DiskInfoRoot.blockSize    = vbuf.f_bsize;
 }
 

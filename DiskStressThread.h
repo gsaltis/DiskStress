@@ -29,6 +29,10 @@
  * Exported Functions
  *****************************************************************************/
 void
+DiskStressThreadSetDirectory
+(string InDirectoryName);
+
+void
 DiskStressFileList
 ();
 

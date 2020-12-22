@@ -27,6 +27,7 @@
 #include "HTTPServerThread.h"
 #include "GeneralUtilities/ANSIColors.h"
 #include "DiskStressThread.h"
+#include "DiskInformation.h"
 
 /*****************************************************************************!
  * Local Macros
@@ -44,6 +45,14 @@ UserInputServerID;
 /*****************************************************************************!
  * Local Functions
  *****************************************************************************/
+void
+UserInputProcessCommandHelp
+(StringList* InCommand);
+
+void
+UserInputProcessCommandDisk
+(StringList* InCommand);
+
 void
 UserInputProcessCommandFile
 (StringList* InCommand);
@@ -410,6 +419,15 @@ UserInputProcessCommand
     UserInputProcessCommandFile(InCommand);
     return;
   }
+  if ( StringEqualNoCase(command, "disk") ) {
+    UserInputProcessCommandDisk(InCommand);
+    return;
+  }
+
+  if ( StringEqualNoCase(command, "help") ) {
+    UserInputProcessCommandHelp(InCommand);
+    return;
+  }
 }
 
 /*****************************************************************************!
@@ -446,4 +464,24 @@ UserInputProcessCommandFile
     DiskStressFileList();
     return;
   }
+}
+
+/*****************************************************************************!
+ * Function : UserInputProcessCommandDisk
+ *****************************************************************************/
+void
+UserInputProcessCommandDisk
+(StringList* InCommand)
+{
+  DiskInformationDisplay();
+}
+
+/*****************************************************************************!
+ * Function : UserInputProcessCommandHelp
+ *****************************************************************************/
+void
+UserInputProcessCommandHelp
+(StringList* InCommand)
+{
+  
 }

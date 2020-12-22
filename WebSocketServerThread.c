@@ -111,6 +111,10 @@ void
 WebSocketHandleInit
 (struct mg_connection* InConnection, json_value* InJSONDoc);
 
+void
+WebSocketHandleGetDiskInfo
+(struct mg_connection* InConnection, json_value* InJSONDoc);
+
 /*****************************************************************************!
  * Function : WebSocketServerThreadInit
  *****************************************************************************/
@@ -229,7 +233,7 @@ WebSocketServerCreateInfoScript
 
   getifaddrs(&addresses);
   
-  printf("%sWebSocket Script ", ColorBrightGreen);
+  printf("%sWebSocket Script ", ColorGreen);
   fflush(stdout);
   //! We only want to do this when we have a value 192. address
   //  So we loop until we do or we eventually give up
@@ -313,6 +317,8 @@ WebSocketHandleRequest
   WebSocketID = JSONIFGetInt(InJSONDoc, "packetid");
   if ( StringEqual(type, "init") ) {
     WebSocketHandleInit(InConnection, InJSONDoc);
+  } else if ( StringEqual(type, "getdiskinfo") ) {
+    WebSocketHandleGetDiskInfo(InConnection, InJSONDoc);
   }
   FreeMemory(type);
 }
@@ -348,6 +354,36 @@ WebSocketHandleInit
   JSONOutDestroy(object);
 }
 
+/*****************************************************************************!
+ * Function : WebSocketHandleGetDiskInfo
+ *****************************************************************************/
+void
+WebSocketHandleGetDiskInfo
+(struct mg_connection* InConnection, json_value* InJSONDoc)
+{
+  JSONOut*                              diskInfo;
+  JSONOut*                              body;
+  string                                s;
+  JSONOut*                              object;
+
+  object = JSONOutCreateObject(NULL);
+  diskInfo = DiskInformationToJSON();
+  body = JSONOutCreateObject("body");
+  JSONOutObjectAddObject(body, diskInfo);
+  JSONOutObjectAddObjects(object,
+                          JSONOutCreateString("packettype", "response"),
+                          JSONOutCreateInt("packetid", JSONIFGetInt(InJSONDoc, "packetid")),
+                          JSONOutCreateInt("time", (int)time(NULL)),
+                          JSONOutCreateString("type", "diskinfo"),
+                          JSONOutCreateString("status", "OK"),
+                          body,
+                          NULL);
+  
+  s = JSONOutToString(object, 0);
+  WebSocketFrameSend(InConnection, s, strlen(s));
+  FreeMemory(s);
+  JSONOutDestroy(object);
+}
 
 /*****************************************************************************!
  * Function : WebSocketFrameSend

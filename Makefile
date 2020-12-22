@@ -1,4 +1,4 @@
-CC				       = gcc
+ CC				       = gcc
 LINK				       = gcc
 CC_OPTS				       = -c -g -Wall -DANSI_COLORS_SUPPORTED
 CC_INCS				       = 
@@ -19,11 +19,10 @@ OBJS				       = $(sort					\
 					   FileInfoBlock.o			\
 					  )
 LIBS				       = 
-%.o				      : %.c
+%.o				       : %.c
 					 @echo [CC] $<
 					 @$(CC) $(CC_OPTS) $(CC_INCS) $<
 
-.PHONY				       : $(TARGET)
 $(TARGET)			       : $(OBJS)
 					 @echo [LD] $(TARGET)
 					 @$(LINK) $(LINK_OPTS) -o $(TARGET) $(OBJS) $(LINK_LIBS) $(LIBS)

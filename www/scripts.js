@@ -1,4 +1,4 @@
-/*****************************************************************************
+ /*****************************************************************************
  * FILE NAME    : scripts.js
  * DATE         : December 02 2020
  * COPYRIGHT    : Copyright (C) 2020 by Gregory R Saltis
@@ -21,6 +21,9 @@ WebSocketIFDiskInfoPoll = true;
 
 var
 WebSocketIFDiskInfoPollTimeoutID = 0;
+
+var
+GetDiskInfoID;
 
 /*****************************************************************************!
  * Function : CBSystemInitialize
@@ -109,6 +112,11 @@ WebSocketIFHandleResponse
       WebSocketIFHandleResponseInit(InPacket.body);
       return;
     }
+    if ( InPacket.type == "diskinfo" ) {
+      WebSocketIFHandleDiskInfoPacket(InPacket.body.diskinfo);
+      GetDiskInfoID = setTimeout(CBWebSocketIFGetDiskInfo, 10000);
+      return;
+    }
   }
 }
 
@@ -119,9 +127,19 @@ function
 WebSocketIFHandleResponseInit
 (InPacket)
 {
+  WebSocketIFHandleDiskInfoPacket(InPacket.diskinfo);
+}
 
-  var                                   w;
+/*****************************************************************************!
+ * Function : WebSocketIFHandleDiskInfoPacket
+ *****************************************************************************/
+function
+WebSocketIFHandleDiskInfoPacket
+(InInfoPacket)
+{
+  var                                   w, i, s;
   var                                   avail, used, total, freeWidth, usedWidth;
+  var                                   availPercent, usedPercent, breakpoint;
   
   var elements = [
     { "name" : "DiskInfoTotalBlocks", "field" : "totalblocksstring" },
@@ -134,15 +152,12 @@ WebSocketIFHandleResponseInit
     { "name" : "DiskInfoUsedBytes", "field" : "usedbytesstring" },
     { "name" : "DiskInfoUsedInodes", "field" : "usedinodesstring" }
   ];
-
-  w1 = document.getElementById("DiskInfoTextArea").clientWidth;
   w = document.getElementById("DiskInfoTextArea").clientWidth - 20;
 
-
   //
-  total = InPacket.diskinfo.totalblocks;
-  avail  = InPacket.diskinfo.freeblocks;
-  used  = InPacket.diskinfo.totalblocks - InPacket.diskinfo.freeblocks;
+  total = InInfoPacket.totalblocks;
+  avail  = InInfoPacket.freeblocks;
+  used  = InInfoPacket.totalblocks - InInfoPacket.freeblocks;
 
   availPercent = avail * 1000 / total;
   availPercent = availPercent.toFixed(0);
@@ -159,12 +174,9 @@ WebSocketIFHandleResponseInit
   s.innerHTML = usedPercent + "%";
   s.style.right = breakpoint + "px";
 
-
-  
-
-  total = InPacket.diskinfo.totalbytes;
-  avail  = InPacket.diskinfo.freebytes;
-  used  = InPacket.diskinfo.totalbytes - InPacket.diskinfo.freebytes;
+  total = InInfoPacket.totalbytes;
+  avail  = InInfoPacket.freebytes;
+  used  = InInfoPacket.totalbytes - InInfoPacket.freebytes;
 
   availPercent = avail * 1000 / total;
   availPercent = availPercent.toFixed(0);
@@ -181,11 +193,9 @@ WebSocketIFHandleResponseInit
   s.innerHTML = usedPercent.toFixed(1) + "%";
   s.style.right = breakpoint + "px";
 
-
-
-  total = InPacket.diskinfo.totalinodes;
-  avail  = InPacket.diskinfo.freeinodes;
-  used  = InPacket.diskinfo.totalinodes - InPacket.diskinfo.freeinodes;
+  total = InInfoPacket.totalinodes;
+  avail  = InInfoPacket.freeinodes;
+  used  = InInfoPacket.totalinodes - InInfoPacket.freeinodes;
 
   availPercent = avail * 1000 / total;
   availPercent = availPercent.toFixed(0);
@@ -201,12 +211,23 @@ WebSocketIFHandleResponseInit
   s = document.getElementById("DiskInfoInodesUsed");
   s.innerHTML = usedPercent.toFixed(1) + "%";
   s.style.right = (breakpoint) + "px";
-
   
-  console.log(w1, breakpoint, availPercent, usedPercent);
   for (i = 0; i < elements.length; i++) {
-    document.getElementById(elements[i].name).innerHTML = InPacket.diskinfo[elements[i].field];
+    document.getElementById(elements[i].name).innerHTML = InInfoPacket[elements[i].field];
   }
+
+  GetDiskInfoID = setTimeout(CBWebSocketIFGetDiskInfo, 10000);
+}
+
+/*****************************************************************************!
+ * Function : CBWebSocketIFGetDiskInfo
+ *****************************************************************************/
+function
+CBWebSocketIFGetDiskInfo
+()
+{
+  console.log("");
+  WebSocketIFSendSimpleRequest("getdiskinfo");
 }
 
 /*****************************************************************************!
@@ -265,6 +286,7 @@ WebSocketIFSendSimpleRequest
   request.type = InRequest;
   request.body = "";
 
+  console.log(request);
   WebSocketIFSendGeneralRequest(request);
 }
 
@@ -312,7 +334,7 @@ SetMessage
   inputArea = document.getElementById("MessageArea");
   inputArea.innerHTML = InMessage;
   inputArea.style.color = InColor;
-  SetMessageTimeoutID = setInterval(SetMessageClear, 10000);
+  SetMessageTimeoutID = setTimeout(SetMessageClear, 10000);
 }
 
 /*****************************************************************************!
