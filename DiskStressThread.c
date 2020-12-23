@@ -179,3 +179,13 @@ DiskStressThreadSetDirectory
   }
   diskStressDirectory = StringConcatTo(diskStressDirectory, "/");
 }
+
+/*****************************************************************************!
+ * Function : DiskStressGetFileSize
+ *****************************************************************************/
+uint64_t
+DiskStressGetFileSize
+()
+{
+  return FileInfoBlockGetSize(diskStressFileHead);
+}

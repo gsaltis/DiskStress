@@ -44,6 +44,10 @@ typedef struct _FileInfoBlock FileInfoBlock;
 /*****************************************************************************!
  * Exported Functions
  *****************************************************************************/
+uint64_t
+FileInfoBlockGetSize
+(FileInfoBlock* InHead);
+
 uint32_t
 FileInfoBlockGetCount
 (FileInfoBlock* InHead);

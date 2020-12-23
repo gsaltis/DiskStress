@@ -241,3 +241,25 @@ FileInfoBlockGetCount
   }
   return i;
 }
+
+
+/*****************************************************************************!
+ * Function : FileInfoBlockGetSize
+ *****************************************************************************/
+uint64_t
+FileInfoBlockGetSize
+(FileInfoBlock* InHead)
+{
+  FileInfoBlock*                        infoBlock;
+  uint64_t                              size;
+  if ( NULL == InHead ) {
+    return 0;
+  }
+
+  size = 0;
+
+  for ( infoBlock = InHead; infoBlock ; infoBlock = infoBlock->next ) {
+    size += infoBlock->filesize;
+  }
+  return size;
+}

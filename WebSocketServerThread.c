@@ -334,11 +334,20 @@ WebSocketHandleInit
   JSONOut*                              body;
   string                                s;
   JSONOut*                              object;
+  JSONOut*                              fileInfo;
 
+
+  fileInfo = JSONOutCreateObject("fileinfo");
+  JSONOutObjectAddObjects(fileInfo,
+                          JSONOutCreateLongLong("size", DiskStressGetFileSize()),
+                          JSONOutCreateInt("count", DiskStressGetFileCount()),
+                          NULL);
+  
   object = JSONOutCreateObject(NULL);
   diskInfo = DiskInformationToJSON();
   body = JSONOutCreateObject("body");
   JSONOutObjectAddObject(body, diskInfo);
+  JSONOutObjectAddObject(body, fileInfo);
   JSONOutObjectAddObjects(object,
                           JSONOutCreateString("packettype", "response"),
                           JSONOutCreateInt("packetid", JSONIFGetInt(InJSONDoc, "packetid")),

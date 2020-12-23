@@ -5,7 +5,7 @@
     --GeneralBackgroundDark             : #AAA;
     --DiskInfoLabelHeight               : 20px;
     --DiskInfoLabelWidth                : 150px;
-    --DiskInfoSectionWidth              : calc(var(--DiskInfoLabelWidth) * 2 - 60px);
+    --DiskInfoSectionWidth              : calc(var(--DiskInfoLabelWidth) * 2 - 40px);
     --HeaderHeightSmall                 : 20px;
 }
 
@@ -73,7 +73,7 @@
 #DiskInfoSection {
     position                            : absolute;
     left                                : 0px;
-    bottom                              : 0px;
+    top                                 : 90px;
     width                               : var(--DiskInfoSectionWidth);
     height                              : calc(var(--DiskInfoLabelHeight) * 13.5);
     border                              : var(--GeneralBorder);
@@ -81,6 +81,24 @@
 }
 
 #DiskInfoTextArea {
+    position                            : absolute;
+    left                                : 0px;
+    right                               : 0px;
+    bottom                              : 0px;
+    top                                 : var(--HeaderHeightSmall);
+}
+
+#FileInfoSection {
+    position                            : absolute;
+    left                                : 0px;
+    top                                 : 0px;
+    width                               : var(--DiskInfoSectionWidth);
+    height                              : calc(var(--DiskInfoLabelHeight) * 3.5);
+    border                              : var(--GeneralBorder);
+    background                          : var(--GeneralBackgroundMedium);
+}
+
+#FileInfoTextArea {
     position                            : absolute;
     left                                : 0px;
     right                               : 0px;
@@ -108,7 +126,7 @@
 .DiskInfoValue {
     left                                : var(--DiskInfoLabelWidth);
     text-align                          : right;
-    width                               : calc(var(--DiskInfoLabelWidth) - 80px);
+    width                               : calc(var(--DiskInfoLabelWidth) - 60px);
     padding-left                        : 10px;
     color                               : #008;
     font-size                           : 10pt;

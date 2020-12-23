@@ -28,6 +28,10 @@
 /*****************************************************************************!
  * Exported Functions
  *****************************************************************************/
+uint64_t
+DiskStressGetFileSize
+();
+
 void
 DiskStressThreadSetDirectory
 (string InDirectoryName);

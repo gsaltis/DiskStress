@@ -128,6 +128,24 @@ WebSocketIFHandleResponseInit
 (InPacket)
 {
   WebSocketIFHandleDiskInfoPacket(InPacket.diskinfo);
+  WebSocketIFHandleFileInfoPacket(InPacket.fileinfo);
+}
+
+/*****************************************************************************!
+ * Function : WebSocketIFHandleFileInfoPacket
+ *****************************************************************************/
+function
+WebSocketIFHandleFileInfoPacket
+(InInfoPacket)
+{
+  var elements = [
+    { "name" : "FileInfoTotalFiles", "field" : "count" },
+    { "name" : "FileInfoTotalSize", "field" : "size" }
+  ];
+  
+  for (i = 0; i < elements.length; i++) {
+    document.getElementById(elements[i].name).innerHTML = InInfoPacket[elements[i].field];
+  }
 }
 
 /*****************************************************************************!
