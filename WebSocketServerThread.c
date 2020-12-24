@@ -124,7 +124,7 @@ WebSocketServerThreadInit
 {
   WebSocketConnections = WebConnectionListCreate();
   WebSocketPortAddress = WebSocketPortAddressDefault;
-  WebSocketWWWDirectory = WebSocketWWWDirectoryDefault;
+  WebSocketWWWDirectory = StringCopy(WebSocketWWWDirectoryDefault);
   WebSocketID           = 0;
 }
 
@@ -159,7 +159,9 @@ WebSocketServerThread
   WebSocketServerOptions.document_root = WebSocketWWWDirectory;
   WebSocketServerOptions.enable_directory_listing = "yes";
   
-  printf("%s\"Web Socket Server Thread\" started%s\n", ColorGreen, ColorReset);
+  printf("%s\"Web Socket Server Thread\" started.  Port : %s%s%s   Directory : %s%s%s\n", 
+		 ColorGreen, ColorYellow, WebSocketPortAddress, ColorGreen, 
+		 ColorYellow, WebSocketWWWDirectory, ColorReset);
   DiskStressThreadStart();
   while ( true ) {
     mg_mgr_poll(&WebSocketManager, WebSocketServerPollPeriod);
@@ -431,4 +433,22 @@ WebSocketJSONSendAll
     WebSocketFrameSend(connection->connection, s, sl);
   }
   FreeMemory(s);
+}
+
+/*****************************************************************************!
+ * Function : WebSocketServerSetDirectory
+ *****************************************************************************/
+void
+WebSocketServerSetDirectory
+(string InDirectoryName)
+{
+  if ( InDirectoryName == NULL ) {
+	return;
+  }
+
+  if ( WebSocketWWWDirectory ) {
+	FreeMemory(WebSocketWWWDirectory);
+  }
+
+  WebSocketWWWDirectory = StringCopy(InDirectoryName);
 }

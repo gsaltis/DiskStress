@@ -91,6 +91,18 @@ MainProcessCommandLine
       MainDisplayHelp();
       exit(EXIT_FAILURE);
     }
+
+	if ( StringEqualsOneOf(command, "-w", "--webdir", NULL) ) {
+      i++;
+      if ( i == argc ) {
+        fprintf(stderr, "%s\"%s\"%s %srequires a directory name%s\n", ColorRed, command, ColorReset, ColorYellow, ColorReset);
+        MainDisplayHelp();
+        exit(EXIT_FAILURE);
+      }
+	  WebSocketServerSetDirectory(argv[i]);
+      continue;
+    }
+
     if ( StringEqualsOneOf(command, "-d", "--directory", NULL) ) {
       i++;
       if ( i == argc ) {
@@ -117,4 +129,5 @@ MainDisplayHelp
   fprintf(stdout, "Usage : %s {options}\n", mainProgramName);
   fprintf(stdout, "        %s-h, --help      %s: %sDisplay this message%s\n", ColorGreen, ColorReset, ColorYellow, ColorReset);
   fprintf(stdout, "        %s-d, --directory %s: %sSpecify the file base directory%s\n", ColorGreen, ColorReset, ColorYellow, ColorReset);
+  fprintf(stdout, "        %s-w, --webdir    %s: %sSpecify the www files base directoryW%s\n", ColorGreen, ColorReset, ColorYellow, ColorReset);
 }

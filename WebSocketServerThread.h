@@ -15,6 +15,7 @@
 /*****************************************************************************!
  * Local Headers
  *****************************************************************************/
+#include "GeneralUtilities/String.h"
 
 /*****************************************************************************!
  * Exported Macros
@@ -42,5 +43,9 @@ WebSocketServerThreadInit
 void
 WebSocketServerCreateInfoScript
 ();
+
+void
+WebSocketServerSetDirectory
+(string InWWWDirectory);
 
 #endif // _websocketserverthread_h_
