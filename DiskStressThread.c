@@ -38,7 +38,7 @@ static string
 diskStressDirectory = NULL;
 
 static string
-diskStressDirectoryDefault = "./";
+diskStressDirectoryDefault = "./DiskStressFiles/";
 
 static string
 DiskStressFilenameBase = "DiskStressFile";
@@ -51,6 +51,15 @@ diskStressFileHead;
 
 static pthread_t
 DiskStressThreadID;
+
+static uint64_t
+diskStressThreadAvailableBytes;
+
+static uint64_t
+diskStressMaxFileSize = 200000;
+
+static uint64_t
+diskStressThreadMaxFiles;
 
 /*****************************************************************************!
  * Local Functions
@@ -96,29 +105,39 @@ void*
 DiskStressThread
 (void* InParameters)
 {
-  string                                fullFilename;
   long long                             filesize;
-  string                                filename;
-  int                                   i;
   FileInfoBlock*                        infoBlock;
+  int                                   index;
+
+  diskStressThreadAvailableBytes = DiskInformationGetAvailableBytes();
+  diskStressThreadMaxFiles = diskStressThreadAvailableBytes / diskStressMaxFileSize;
+  diskStressThreadMaxFiles++;
+
+  FileInfoBlockSetCreate(diskStressThreadMaxFiles);
   printf("%sDisk Stress Thread       :%s started%s\n"
-	     "  %sFiles Directory        : %s%s%s\n", 
+	     "  %sFiles Directory        : %s%s%s\n"
+		 "  %sAvailable Bytes        : %s%llu%s\n" 
+		 "  %sMax Files              : %s%llu%s\n", 
 		 ColorGreen, ColorYellow, ColorReset, 
-		 ColorCyan, ColorYellow, diskStressDirectory, ColorReset);
+		 ColorCyan, ColorYellow, diskStressDirectory, ColorReset,
+		 ColorCyan, ColorYellow, diskStressThreadAvailableBytes, ColorReset,
+		 ColorCyan, ColorYellow, diskStressThreadMaxFiles, ColorReset);
   UserInputServerThreadStart();
-  i = 0;
+
+  filesize = diskStressMaxFileSize;
   while ( true ) {
-    i++;
-    if ( i <= 100 ) {
-      filename = DiskStressGenFilename();
-      fullFilename = StringConcat(diskStressDirectory, filename);
-      filesize = 100000;
-      infoBlock = FileInfoBlockCreate(fullFilename, filesize);
-      FileInfoBlockCreateFile(infoBlock);
-      FreeMemory(filename);
-      FreeMemory(fullFilename);
-      diskStressFileHead = FileInfoBlockAppend(diskStressFileHead, infoBlock);
-    }
+	index = rand();
+	index %= diskStressThreadMaxFiles;
+	infoBlock = FileInfoBlockGetBlock(index);
+	if ( infoBlock ) {
+	  if ( infoBlock->filesize == 0 ) {
+		FileInfoBlockSetBlock(infoBlock, filesize);
+		FileInfoBlockCreateFile(infoBlock, diskStressDirectory);
+	  } else {
+		FileInfoBlockRemoveFile(infoBlock);
+		FileInfoBlockClearBlock(infoBlock);
+	  }
+	}
     sleep(5);
     DiskInformationRefresh();
   }

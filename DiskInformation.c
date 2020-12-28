@@ -64,14 +64,17 @@ DiskInformationRefresh
     exit(EXIT_FAILURE);
   }
 
-  DiskInfoRoot.totalBytes  = vbuf.f_blocks * 4;
-  DiskInfoRoot.freeBytes   = vbuf.f_bfree * 4;
+  DiskInfoRoot.blockSize    = vbuf.f_bsize;
+  DiskInfoRoot.totalBytes   = vbuf.f_blocks;
+  DiskInfoRoot.totalBytes  *= DiskInfoRoot.blockSize;
+
+  DiskInfoRoot.freeBytes    = vbuf.f_bfree;
+  DiskInfoRoot.freeBytes   *= DiskInfoRoot.blockSize;
+
   DiskInfoRoot.totalInodes  = vbuf.f_files;
   DiskInfoRoot.freeInodes   = vbuf.f_favail;
   DiskInfoRoot.totalBlocks  = vbuf.f_blocks;
-  DiskInfoRoot.freeBlocks  = vbuf.f_bfree;
-    ;
-  DiskInfoRoot.blockSize    = vbuf.f_bsize;
+  DiskInfoRoot.freeBlocks   = vbuf.f_bfree;
 }
 
 /*****************************************************************************!
@@ -126,4 +129,14 @@ DiskInformationToJSON
   JSONOutObjectAddObject(jsonOut, JSONOutCreateString("usedblocksstring", ConvertLongLongToCommaString(DiskInfoRoot.totalBlocks - DiskInfoRoot.freeBlocks, s1)));
   
   return jsonOut;
+}
+
+/*****************************************************************************!
+ * Function : DiskInformationGetAvailableBytes
+ *****************************************************************************/
+uint64_t
+DiskInformationGetAvailableBytes
+()
+{
+  return DiskInfoRoot.freeBytes;
 }

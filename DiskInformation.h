@@ -59,4 +59,8 @@ void
 DiskInformationInitialize
 ();
 
+uint64_t
+DiskInformationGetAvailableBytes
+();
+
 #endif // _diskinformation_h_

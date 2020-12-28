@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
 
 /*****************************************************************************!
  * Local Headers
@@ -30,6 +31,37 @@
 /*****************************************************************************!
  * Local Data
  *****************************************************************************/
+FileInfoBlock*
+fileInfoBlockSet = NULL;
+
+int
+fileInfoBlockSetSize = 0;
+
+string
+fileInfoBlockPrefix = "DiskFileInfo";
+
+/*****************************************************************************!
+ * Function : FileInfoBlockSetCreate
+ *****************************************************************************/
+void
+FileInfoBlockSetCreate
+(int InSetSize)
+{
+  int                                   i, n;
+
+  if ( InSetSize == 0 ) {
+	return;
+  }
+
+  n = InSetSize * sizeof(FileInfoBlock);
+  fileInfoBlockSet = (FileInfoBlock*)GetMemory(n);
+  memset(fileInfoBlockSet, 0x00, n);
+  fileInfoBlockSetSize = InSetSize;
+
+  for ( i = 0 ; i < InSetSize ; i++ ) {
+    fileInfoBlockSet[i].index = i + 1;
+  }
+}
 
 /*****************************************************************************!
  * Function : FileInfoBlockCreate
@@ -142,44 +174,23 @@ FileInfoBlockRemove
  *****************************************************************************/
 void
 FileInfoBlockDisplay
-(FileInfoBlock* InInfoBlock)
+()
 {
   struct tm*                            t;
   FileInfoBlock*                        infoBlock;
-  if ( NULL == InInfoBlock ) {
-    return;
-  }
-  for ( infoBlock = InInfoBlock ; infoBlock ; infoBlock = infoBlock->next ) {
+  int                                   i;
+
+  for ( i = 0 ; i < fileInfoBlockSetSize ; i++ ) {
+	if ( fileInfoBlockSet[i].filesize == 0 ) {
+	  continue;
+	}
+	infoBlock = &(fileInfoBlockSet[i]);
     t = localtime(&infoBlock->filetime);
-    printf("%34s  %10lld  %02d/%02d/%04d %02d:%02d:%02d\n",
-           infoBlock->filename, infoBlock->filesize,
+    printf("%6d  %10lld  %02d/%02d/%04d %02d:%02d:%02d\n",
+		   infoBlock->index, 
+           infoBlock->filesize,
            t->tm_mon + 1, t->tm_mday, t->tm_year + 1900, t->tm_hour, t->tm_min, t->tm_sec);
   }
-}
-
-/*****************************************************************************!
- * Function : FileInfoBlockCreateFile
- *****************************************************************************/
-bool
-FileInfoBlockCreateFile
-(FileInfoBlock* InInfoBlock)
-{
-  int                                   i;
-  FILE*                                 file;
-  if ( NULL == InInfoBlock ) {
-    return false;
-  }
-
-  file = fopen(InInfoBlock->filename, "wb");
-  if ( NULL == file ) {
-    return false;
-  }
-  
-  for (i = 0; i < InInfoBlock->filesize; i++) {
-    fputc(' ', file);
-  }
-  fclose(file);
-  return true;
 }
 
 /*****************************************************************************!
@@ -226,22 +237,17 @@ FileInfoBlockRemoveByName
  *****************************************************************************/
 uint32_t
 FileInfoBlockGetCount
-(FileInfoBlock* InHead)
+()
 {
-  FileInfoBlock*                        infoBlock;
-  int                                   i;
-  if ( NULL == InHead ) {
-    return 0;
+  int									i, count;
+  count = 0;
+  for (i = 0; i < fileInfoBlockSetSize ; i++ ) {
+	if ( fileInfoBlockSet[i].filesize ) {
+	  count++;
+	}
   }
-
-  i = 0;
-
-  for ( infoBlock = InHead; infoBlock ; infoBlock = infoBlock->next ) {
-    i++;
-  }
-  return i;
+  return count;
 }
-
 
 /*****************************************************************************!
  * Function : FileInfoBlockGetSize
@@ -250,16 +256,107 @@ uint64_t
 FileInfoBlockGetSize
 (FileInfoBlock* InHead)
 {
-  FileInfoBlock*                        infoBlock;
   uint64_t                              size;
-  if ( NULL == InHead ) {
-    return 0;
-  }
+  int                                   i;
 
   size = 0;
 
-  for ( infoBlock = InHead; infoBlock ; infoBlock = infoBlock->next ) {
-    size += infoBlock->filesize;
+  for (i = 0; i < fileInfoBlockSetSize ; i++ ) {
+	if ( fileInfoBlockSet[i].filesize ) {
+	  size += fileInfoBlockSet[i].filesize;
+	}
   }
   return size;
 }
+
+/*****************************************************************************!
+ * Function : FileInfoBlockGetBlock
+ *****************************************************************************/
+FileInfoBlock*
+FileInfoBlockGetBlock
+(int InIndex)
+{
+  if ( InIndex < 0 || InIndex >= fileInfoBlockSetSize ) {
+	return NULL;
+  }
+  return &(fileInfoBlockSet[InIndex]);
+}
+
+/*****************************************************************************!
+ * Function : FileInfoBlockSetBlock
+ *****************************************************************************/
+void
+FileInfoBlockSetBlock
+(FileInfoBlock* InBlock, int InSize)
+{
+  if ( InBlock == NULL || InSize == 0 ) {
+	return;
+  }
+  InBlock->filetime = time(NULL);
+  InBlock->filesize = InSize;
+  
+}
+
+/*****************************************************************************!
+ * Function : FileInfoBlockClearBlock
+ *****************************************************************************/
+void
+FileInfoBlockClearBlock
+(FileInfoBlock* InBlock)
+{
+  if ( InBlock == NULL ) {
+	return;
+  }
+  InBlock->filesize = 0;
+  InBlock->filetime = 0;
+}
+
+/*****************************************************************************!
+ * Function : FileInfoBlockCreateFile
+ *****************************************************************************/
+void
+FileInfoBlockCreateFile
+(FileInfoBlock* InBlock, string InDirectory)
+{
+  char									filename[32];
+  FILE*                                 file;
+  int                                   i;
+  string                                s;
+
+  if ( InBlock == NULL ) {
+	return;
+  }
+
+  sprintf(filename, "%s%d", fileInfoBlockPrefix, InBlock->index);
+  s = StringConcat(InDirectory, filename);
+  file = fopen(s, "wb");
+  if ( NULL == file ) {
+	return;
+  }
+  for (i = 0; i < InBlock->filesize ; i++ ) {
+	fputc(' ', file);
+  }
+  FreeMemory(s);
+  fclose(file);
+}
+
+/*****************************************************************************!
+ * Function : FileInfoBlockRemoveFile
+ *****************************************************************************/
+void
+FileInfoBlockRemoveFile
+(FileInfoBlock* InBlock)
+{
+  char									filename[32];
+  if ( NULL == InBlock ) {
+	return;
+  }
+
+  if ( InBlock->filesize == 0 ) {
+	return;
+  }
+
+  sprintf(filename, "%s%d", fileInfoBlockPrefix, InBlock->index);
+  unlink(filename);
+}
+
