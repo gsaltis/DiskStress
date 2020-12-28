@@ -151,7 +151,7 @@ FileInfoBlockDisplay
   }
   for ( infoBlock = InInfoBlock ; infoBlock ; infoBlock = infoBlock->next ) {
     t = localtime(&infoBlock->filetime);
-    printf("%35s  %10lld  %02d/%02d/%04d %02d:%02d:%02d\n",
+    printf("%34s  %10lld  %02d/%02d/%04d %02d:%02d:%02d\n",
            infoBlock->filename, infoBlock->filesize,
            t->tm_mon + 1, t->tm_mday, t->tm_year + 1900, t->tm_hour, t->tm_min, t->tm_sec);
   }

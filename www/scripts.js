@@ -25,6 +25,9 @@ WebSocketIFDiskInfoPollTimeoutID = 0;
 var
 GetDiskInfoID;
 
+var
+GetFileInfoID;
+
 /*****************************************************************************!
  * Function : CBSystemInitialize
  *****************************************************************************/
@@ -114,7 +117,10 @@ WebSocketIFHandleResponse
     }
     if ( InPacket.type == "diskinfo" ) {
       WebSocketIFHandleDiskInfoPacket(InPacket.body.diskinfo);
-      GetDiskInfoID = setTimeout(CBWebSocketIFGetDiskInfo, 10000);
+      return;
+    }
+    if ( InPacket.type == "fileinfo" ) {
+      WebSocketIFHandleFileInfoPacket(InPacket.body.fileinfo);
       return;
     }
   }
@@ -146,6 +152,9 @@ WebSocketIFHandleFileInfoPacket
   for (i = 0; i < elements.length; i++) {
     document.getElementById(elements[i].name).innerHTML = InInfoPacket[elements[i].field];
   }
+
+  clearTimeout(GetFileInfoID);
+  GetFileInfoID = setTimeout(CBWebSocketIFGetFileInfo, 10000);
 }
 
 /*****************************************************************************!
@@ -233,7 +242,6 @@ WebSocketIFHandleDiskInfoPacket
   for (i = 0; i < elements.length; i++) {
     document.getElementById(elements[i].name).innerHTML = InInfoPacket[elements[i].field];
   }
-
   GetDiskInfoID = setTimeout(CBWebSocketIFGetDiskInfo, 10000);
 }
 
@@ -244,8 +252,17 @@ function
 CBWebSocketIFGetDiskInfo
 ()
 {
-  console.log("");
   WebSocketIFSendSimpleRequest("getdiskinfo");
+}
+
+/*****************************************************************************!
+ * Function : CBWebSocketIFGetFileInfo
+ *****************************************************************************/
+function
+CBWebSocketIFGetFileInfo
+()
+{
+  WebSocketIFSendSimpleRequest("getfileinfo");
 }
 
 /*****************************************************************************!
@@ -304,7 +321,6 @@ WebSocketIFSendSimpleRequest
   request.type = InRequest;
   request.body = "";
 
-  console.log(request);
   WebSocketIFSendGeneralRequest(request);
 }
 

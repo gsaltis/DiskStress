@@ -115,6 +115,10 @@ void
 WebSocketHandleGetDiskInfo
 (struct mg_connection* InConnection, json_value* InJSONDoc);
 
+void
+WebSocketHandleGetFileInfo
+(struct mg_connection* InConnection, json_value* InJSONDoc);
+
 /*****************************************************************************!
  * Function : WebSocketServerThreadInit
  *****************************************************************************/
@@ -159,9 +163,12 @@ WebSocketServerThread
   WebSocketServerOptions.document_root = WebSocketWWWDirectory;
   WebSocketServerOptions.enable_directory_listing = "yes";
   
-  printf("%s\"Web Socket Server Thread\" started.  Port : %s%s%s   Directory : %s%s%s\n", 
-		 ColorGreen, ColorYellow, WebSocketPortAddress, ColorGreen, 
-		 ColorYellow, WebSocketWWWDirectory, ColorReset);
+  printf("%sWeb Socket Server Thread : %sstarted%s\n"
+	     "%s  Port                   : %s%s%s\n"
+	  	 "%s  Directory              : %s%s%s\n", 
+		 ColorGreen, ColorYellow, ColorReset,
+		 ColorCyan, ColorYellow, WebSocketPortAddress, ColorReset, 
+		 ColorCyan, ColorYellow, WebSocketWWWDirectory, ColorReset);
   DiskStressThreadStart();
   while ( true ) {
     mg_mgr_poll(&WebSocketManager, WebSocketServerPollPeriod);
@@ -235,7 +242,7 @@ WebSocketServerCreateInfoScript
 
   getifaddrs(&addresses);
   
-  printf("%sWebSocket Script ", ColorGreen);
+  printf("%sWebSocket Script         : ", ColorGreen);
   fflush(stdout);
   //! We only want to do this when we have a value 192. address
   //  So we loop until we do or we eventually give up
@@ -245,8 +252,6 @@ WebSocketServerCreateInfoScript
         continue;
       }
       fd = socket(AF_INET, SOCK_DGRAM, 0);
-      printf(".");
-      fflush(stdout); 
       /* I want to get an IPv4 IP address */
       ifr.ifr_addr.sa_family = AF_INET;
 
@@ -278,7 +283,7 @@ WebSocketServerCreateInfoScript
     }
   }
   freeifaddrs(addresses);
-  printf(" %screated%s\n", found ? "" : "not ", ColorReset);
+  printf("%s%screated%s\n", ColorYellow, found ? "" : "not ", ColorReset);
 }
 
 /*****************************************************************************!
@@ -321,8 +326,48 @@ WebSocketHandleRequest
     WebSocketHandleInit(InConnection, InJSONDoc);
   } else if ( StringEqual(type, "getdiskinfo") ) {
     WebSocketHandleGetDiskInfo(InConnection, InJSONDoc);
+  } else if ( StringEqual(type, "getfileinfo") ) {
+	WebSocketHandleGetFileInfo(InConnection, InJSONDoc);
   }
   FreeMemory(type);
+}
+
+/*****************************************************************************!
+ * Function : WebSocketHandleGetFileInfo
+ *****************************************************************************/
+void
+WebSocketHandleGetFileInfo
+(struct mg_connection* InConnection, json_value* InJSONDoc)
+{
+  JSONOut*                              body;
+  string                                s;
+  JSONOut*                              object;
+  JSONOut*                              fileInfo;
+
+
+  fileInfo = JSONOutCreateObject("fileinfo");
+  JSONOutObjectAddObjects(fileInfo,
+                          JSONOutCreateLongLong("size", DiskStressGetFileSize()),
+                          JSONOutCreateInt("count", DiskStressGetFileCount()),
+                          NULL);
+  
+  object = JSONOutCreateObject(NULL);
+  body = JSONOutCreateObject("body");
+  JSONOutObjectAddObject(body, fileInfo);
+  JSONOutObjectAddObjects(object,
+                          JSONOutCreateString("packettype", "response"),
+                          JSONOutCreateInt("packetid", JSONIFGetInt(InJSONDoc, "packetid")),
+                          JSONOutCreateInt("time", (int)time(NULL)),
+                          JSONOutCreateString("type", "fileinfo"),
+                          JSONOutCreateString("status", "OK"),
+                          body,
+                          NULL);
+  
+  s = JSONOutToString(object, 0);
+  WebSocketFrameSend(InConnection, s, strlen(s));
+  FreeMemory(s);
+  JSONOutDestroy(object);
+
 }
 
 /*****************************************************************************!

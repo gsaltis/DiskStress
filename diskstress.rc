@@ -1,0 +1,76 @@
+#!/bin/sh
+# Start/stop the diskstress daemon.
+#
+### BEGIN INIT INFO
+# Provides:          diskstress
+# Required-Start:    $network-online $remote_fs $syslog $time
+# Required-Stop:     $remote_fs $syslog $time
+# Should-Start:      $network $named slapd autofs ypbind nscd nslcd winbind sssd
+# Should-Stop:       $network $named slapd autofs ypbind nscd nslcd winbind sssd
+# Default-Start:     2 3 4 5
+# Default-Stop:
+# Short-Description: Regular background program processing daemon
+# Description:       Disk Stressor
+### END INIT INFO
+
+PATH=/bin:/usr/bin:/sbin:/usr/sbin
+DESC="diskstress daemon"
+NAME=diskstress
+DAEMON=/home/pi/Source/DiskStress/diskstress
+PIDFILE=/var/run/diskstress.pid
+SCRIPTNAME=/etc/init.d/"$NAME"
+EXTRA_OPTS=
+test -f $DAEMON || exit 0
+
+. /lib/lsb/init-functions
+
+start() {
+  export speed=4
+  export speedflag=-s
+  log_daemon_msg "Starting Disk Stress Service" "diskstress"
+  start_daemon -p $PIDFILE $DAEMON -d /home/pi/Source/DiskStress/DiskStressFiles/
+  log_end_msg $?
+}
+
+stop() {
+  log_daemon_msg "Stopping CAN Monitor Service" "diskstress"
+  killproc -p $PIDFILE $DAEMON
+  RETVAL=$?
+  [ $RETVAL -eq 0 ] && [ -e "$PIDFILE" ] && rm -f $PIDFILE
+  log_end_msg $RETVAL
+}
+
+status() {
+  log_daemon_msg "Disk Stressor running" "diskstress"
+}
+
+case "$1" in
+  start)
+    start
+  ;;
+
+  stop)
+    stop
+  ;;
+
+  restart)
+    log_daemon_msg "Restarting CAN Monitor Service" "diskstress" 
+    $0 stop
+    $0 start
+  ;;
+
+  reload|force-reload)
+    log_daemon_msg "Reloading configuration files for CAN Monitor Service" "diskstress"
+    log_end_msg 0
+   ;;
+
+  status)
+    status_of_proc -p $PIDFILE $DAEMON $NAME && exit 0 || exit $?
+   ;;
+
+  *)
+    log_action_msg "Usage: /etc/init.d/diskstress: {start|stop|status|restart|reload|force-reload}"
+     exit 2
+  ;;
+esac
+exit 0

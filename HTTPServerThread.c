@@ -112,9 +112,10 @@ HTTPServerThread
   mg_set_protocol_http_websocket(HTTPConnection);
   HTTPServerOptions.document_root = HTTPWWWDirectory;
   HTTPServerOptions.enable_directory_listing = "yes";
-  printf("%s\"HTTP Server Thread\" started on port%s %s%s%s\n",
-         ColorGreen, ColorReset,
-         ColorYellow, HTTPPortAddress, ColorReset);
+  printf("%sHTTP Server Thread       : %sstarted%s\n"
+		 "  %sPort                   : %s%s%s\n",
+         ColorGreen, ColorYellow, ColorReset,
+         ColorCyan, ColorYellow, HTTPPortAddress, ColorReset);
 
   WebSocketServerThreadStart();
   while ( true ) {

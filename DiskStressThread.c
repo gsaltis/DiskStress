@@ -14,6 +14,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <dirent.h>
+#include <errno.h>
 
 /*****************************************************************************!
  * Local Headers
@@ -57,6 +59,10 @@ void*
 DiskStressThread
 (void* InParameters);
 
+static void
+DiskStressThreadCleanFiles
+();
+
 /*****************************************************************************!
  * Function : DiskStressThreadInit
 
@@ -76,6 +82,7 @@ void
 DiskStressThreadStart
 ()
 {
+  DiskStressThreadCleanFiles();
   if ( pthread_create(&DiskStressThreadID, NULL, DiskStressThread, NULL) ) {
     fprintf(stderr, "%sCould not start \"DiskStress Thread\"%s\n", ColorRed, ColorReset);
     exit(EXIT_FAILURE);
@@ -94,7 +101,10 @@ DiskStressThread
   string                                filename;
   int                                   i;
   FileInfoBlock*                        infoBlock;
-  printf("%s\"Disk Stress Thread\" started%s : %s\n", ColorGreen, ColorReset, diskStressDirectory);
+  printf("%sDisk Stress Thread       :%s started%s\n"
+	     "  %sFiles Directory        : %s%s%s\n", 
+		 ColorGreen, ColorYellow, ColorReset, 
+		 ColorCyan, ColorYellow, diskStressDirectory, ColorReset);
   UserInputServerThreadStart();
   i = 0;
   while ( true ) {
@@ -102,7 +112,7 @@ DiskStressThread
     if ( i <= 100 ) {
       filename = DiskStressGenFilename();
       fullFilename = StringConcat(diskStressDirectory, filename);
-      filesize = 100;
+      filesize = 100000;
       infoBlock = FileInfoBlockCreate(fullFilename, filesize);
       FileInfoBlockCreateFile(infoBlock);
       FreeMemory(filename);
@@ -189,3 +199,39 @@ DiskStressGetFileSize
 {
   return FileInfoBlockGetSize(diskStressFileHead);
 }
+
+/*****************************************************************************!
+ * Function : DiskStressThreadCleanFiles
+ *****************************************************************************/
+void
+DiskStressThreadCleanFiles
+()
+{
+  DIR*	                                dir;
+  struct dirent*						entry;
+  string								fullname;
+  int 									n;
+
+  dir = opendir(diskStressDirectory);
+  if ( NULL == dir ) {
+	return;
+  }
+
+  n = 0;
+  for ( entry = readdir(dir) ; entry ; entry = readdir(dir) ) {
+	if ( StringEqualsOneOf(entry->d_name, ".", "..", NULL) ) {
+	  continue;
+	}
+	fullname = StringConcat(diskStressDirectory, entry->d_name);
+    if ( unlink(fullname) ) {
+	  fprintf(stderr, "%sCould remove file %s%s : %s%s%s\n", ColorRed, ColorBrightRed, fullname, ColorRed, strerror(errno), ColorReset);
+	  exit(EXIT_FAILURE);
+	}
+	FreeMemory(fullname);
+	n++;
+  }
+  if ( n > 1 ) {
+	printf("%sFiles removed            : %s%d%s\n", ColorGreen, ColorYellow, n, ColorReset);
+  }
+}
+
