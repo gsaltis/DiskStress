@@ -146,7 +146,9 @@ WebSocketIFHandleFileInfoPacket
 {
   var elements = [
     { "name" : "FileInfoTotalFiles", "field" : "count" },
-    { "name" : "FileInfoTotalSize", "field" : "size" }
+    { "name" : "FileInfoTotalSize", "field" : "size" },
+	{ "name" : "FileInfoCreateFiles", "field" : "created" },
+	{ "name" : "FileInfoRemovedFiles", "field" : "destroyed" }
   ];
   
   for (i = 0; i < elements.length; i++) {

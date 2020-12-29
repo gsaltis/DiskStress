@@ -60,4 +60,16 @@ void
 DiskStressThreadInit
 ();
 
+void
+DiskStressThreadSetMaxFiles
+(uint64_t InMaxFiles);
+
+uint64_t
+DiskStressThreadGetFilesRemovedCount
+();
+
+uint64_t
+DiskStressThreadGetFilesCreatedCount
+();
+
 #endif // _diskstressthread_h_

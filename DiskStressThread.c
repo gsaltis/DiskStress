@@ -56,10 +56,19 @@ static uint64_t
 diskStressThreadAvailableBytes;
 
 static uint64_t
-diskStressMaxFileSize = 200000;
+diskStressMaxFileSize = 500000;
 
 static uint64_t
-diskStressThreadMaxFiles;
+diskStressThreadMaxFiles = 0;
+
+static uint64_t
+diskStressThreadFilesRemovedCount = 0;
+
+static uint64_t
+diskStressThreadFilesCreatedCount = 0;
+
+static int
+diskStressThreadSleepPeriod = 2;
 
 /*****************************************************************************!
  * Local Functions
@@ -110,9 +119,12 @@ DiskStressThread
   int                                   index;
 
   diskStressThreadAvailableBytes = DiskInformationGetAvailableBytes();
-  diskStressThreadMaxFiles = diskStressThreadAvailableBytes / diskStressMaxFileSize;
-  diskStressThreadMaxFiles++;
 
+  // If the user has not already set the maximum number of files, set it now
+  if ( diskStressThreadMaxFiles == 0 ) {
+    diskStressThreadMaxFiles = diskStressThreadAvailableBytes / diskStressMaxFileSize;
+    diskStressThreadMaxFiles++;
+  }
   FileInfoBlockSetCreate(diskStressThreadMaxFiles);
   printf("%sDisk Stress Thread       :%s started%s\n"
 	     "  %sFiles Directory        : %s%s%s\n"
@@ -133,12 +145,14 @@ DiskStressThread
 	  if ( infoBlock->filesize == 0 ) {
 		FileInfoBlockSetBlock(infoBlock, filesize);
 		FileInfoBlockCreateFile(infoBlock, diskStressDirectory);
+		diskStressThreadFilesCreatedCount++;
 	  } else {
 		FileInfoBlockRemoveFile(infoBlock);
 		FileInfoBlockClearBlock(infoBlock);
+		diskStressThreadFilesRemovedCount++;
 	  }
 	}
-    sleep(5);
+    sleep(diskStressThreadSleepPeriod);
     DiskInformationRefresh();
   }
 }
@@ -253,4 +267,39 @@ DiskStressThreadCleanFiles
 	printf("%sFiles removed            : %s%d%s\n", ColorGreen, ColorYellow, n, ColorReset);
   }
 }
+
+/*****************************************************************************!
+ * Function : DiskStressThreadSetMaxFiles
+ *****************************************************************************/
+void
+DiskStressThreadSetMaxFiles
+(uint64_t InMaxFiles)
+{
+  if ( InMaxFiles == 0 ) {
+	return;
+  }
+
+  diskStressThreadMaxFiles = InMaxFiles;
+}
+
+/*****************************************************************************!
+ * Function : DiskStressThreadGetFilesRemovedCount
+ *****************************************************************************/
+uint64_t
+DiskStressThreadGetFilesRemovedCount
+()
+{
+  return diskStressThreadFilesRemovedCount;
+}
+
+/*****************************************************************************!
+ * Function : DiskStressThreadGetFilesCreatedCount 
+ *****************************************************************************/
+uint64_t
+DiskStressThreadGetFilesCreatedCount
+()
+{
+  return diskStressThreadFilesCreatedCount;
+}
+
 

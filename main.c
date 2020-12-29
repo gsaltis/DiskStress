@@ -27,6 +27,7 @@
 #include "GeneralUtilities/String.h"
 #include "GeneralUtilities/MemoryManager.h"
 #include "GeneralUtilities/ANSIColors.h"
+#include "GeneralUtilities/NumericTypes.h"
 
 /*****************************************************************************!
  * Local Macros
@@ -84,6 +85,8 @@ MainProcessCommandLine
 {
   int                                   i;
   string                                command;
+  int									n;
+  bool									b;
 
   for (i = 1; i < argc; i++) {
     command = argv[i];
@@ -102,6 +105,24 @@ MainProcessCommandLine
 	  WebSocketServerSetDirectory(argv[i]);
       continue;
     }
+
+	if ( StringEqualsOneOf(command, "-f", "--filesmax", NULL) ) {
+	  i++;
+	  if ( i == argc ) {
+		fprintf(stderr, "%s\"%s\"%s %srequires a integer%s\n", ColorRed, command, ColorReset, ColorYellow, ColorReset);
+		MainDisplayHelp();
+		exit(EXIT_FAILURE);
+	  }
+	  n = GetIntValueFromString(&b, argv[i]);
+	  if ( !b ) {
+		fprintf(stderr, "%s\"%s\"%s  %sdoes not appear to be an integer%s\n",
+						ColorRed, argv[i], ColorReset, ColorYellow, ColorReset);
+		MainDisplayHelp();
+		exit(EXIT_FAILURE);
+	  }
+	  DiskStressThreadSetMaxFiles((uint64_t)n);
+	  continue;
+	}
 
     if ( StringEqualsOneOf(command, "-d", "--directory", NULL) ) {
       i++;
@@ -127,7 +148,13 @@ MainDisplayHelp
 ()
 {
   fprintf(stdout, "Usage : %s {options}\n", mainProgramName);
-  fprintf(stdout, "        %s-h, --help      %s: %sDisplay this message%s\n", ColorGreen, ColorReset, ColorYellow, ColorReset);
-  fprintf(stdout, "        %s-d, --directory %s: %sSpecify the file base directory%s\n", ColorGreen, ColorReset, ColorYellow, ColorReset);
-  fprintf(stdout, "        %s-w, --webdir    %s: %sSpecify the www files base directoryW%s\n", ColorGreen, ColorReset, ColorYellow, ColorReset);
+  fprintf(stdout, "        %s-h, --help      %s: %sDisplay this message%s\n", 
+				  ColorGreen, ColorReset, ColorYellow, ColorReset);
+  fprintf(stdout, "        %s-d, --directory %s: %sSpecify the file base directory%s\n", 
+				  ColorGreen, ColorReset, ColorYellow, ColorReset);
+  fprintf(stdout, "        %s-w, --webdir    %s: %sSpecify the www files base directory%s\n", 
+		  		  ColorGreen, ColorReset, ColorYellow, ColorReset);
+  fprintf(stdout, "        %s-f, --filesmax  %s: %sSpecify the maximum number of files create%s\n",
+		          ColorGreen, ColorReset, ColorYellow, ColorReset);
+		  
 }

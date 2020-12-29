@@ -349,6 +349,8 @@ WebSocketHandleGetFileInfo
   JSONOutObjectAddObjects(fileInfo,
                           JSONOutCreateLongLong("size", DiskStressGetFileSize()),
                           JSONOutCreateInt("count", DiskStressGetFileCount()),
+  						  JSONOutCreateInt("created", DiskStressThreadGetFilesCreatedCount()),
+						  JSONOutCreateInt("destroyed", DiskStressThreadGetFilesRemovedCount()),
                           NULL);
   
   object = JSONOutCreateObject(NULL);
@@ -388,6 +390,8 @@ WebSocketHandleInit
   JSONOutObjectAddObjects(fileInfo,
                           JSONOutCreateLongLong("size", DiskStressGetFileSize()),
                           JSONOutCreateInt("count", DiskStressGetFileCount()),
+						  JSONOutCreateInt("created", DiskStressThreadGetFilesCreatedCount()),
+						  JSONOutCreateInt("destroyed", DiskStressThreadGetFilesRemovedCount()),
                           NULL);
   
   object = JSONOutCreateObject(NULL);

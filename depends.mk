@@ -16,7 +16,7 @@ JSONOut.o: JSONOut.c JSONOut.h GeneralUtilities/String.h \
 main.o: main.c main.h UserInputServerThread.h WebSocketServerThread.h \
  GeneralUtilities/String.h DiskStressThread.h HTTPServerThread.h \
  DiskInformation.h JSONOut.h GeneralUtilities/MemoryManager.h \
- GeneralUtilities/ANSIColors.h
+ GeneralUtilities/ANSIColors.h GeneralUtilities/NumericTypes.h
 UserInputServerThread.o: UserInputServerThread.c UserInputServerThread.h \
  GeneralUtilities/String.h RPiBaseModules/linenoise.h HTTPServerThread.h \
  GeneralUtilities/ANSIColors.h DiskStressThread.h DiskInformation.h \

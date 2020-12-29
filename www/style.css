@@ -73,7 +73,7 @@
 #DiskInfoSection {
     position                            : absolute;
     left                                : 0px;
-    top                                 : 90px;
+    top                                 : 130px;
     width                               : var(--DiskInfoSectionWidth);
     height                              : calc(var(--DiskInfoLabelHeight) * 13.5);
     border                              : var(--GeneralBorder);
@@ -93,7 +93,7 @@
     left                                : 0px;
     top                                 : 0px;
     width                               : var(--DiskInfoSectionWidth);
-    height                              : calc(var(--DiskInfoLabelHeight) * 3.5);
+    height                              : calc(var(--DiskInfoLabelHeight) * 5.5);
     border                              : var(--GeneralBorder);
     background                          : var(--GeneralBackgroundMedium);
 }
