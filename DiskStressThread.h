@@ -72,4 +72,8 @@ uint64_t
 DiskStressThreadGetFilesCreatedCount
 ();
 
+void
+DiskStressThreadSetMaxFileSize
+(uint64_t InMaxFileSize);
+
 #endif // _diskstressthread_h_

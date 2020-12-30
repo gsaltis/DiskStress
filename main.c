@@ -106,6 +106,24 @@ MainProcessCommandLine
       continue;
     }
 
+	if ( StringEqualsOneOf(command, "-m", "--maxfilesize", NULL) ) {
+	  i++;
+	  if ( i == argc ) {
+		fprintf(stderr, "%s\"%s\"%s %srequires a integer%s\n", ColorRed, command, ColorReset, ColorYellow, ColorReset);
+		MainDisplayHelp();
+		exit(EXIT_FAILURE);
+	  }
+	  n = GetIntValueFromString(&b, argv[i]);
+	  if ( !b ) {
+		fprintf(stderr, "%s\"%s\"%s  %sdoes not appear to be an integer%s\n",
+						ColorRed, argv[i], ColorReset, ColorYellow, ColorReset);
+		MainDisplayHelp();
+		exit(EXIT_FAILURE);
+	  }
+	  DiskStressThreadSetMaxFileSize((uint64_t)n);
+	  continue;
+	}
+
 	if ( StringEqualsOneOf(command, "-f", "--filesmax", NULL) ) {
 	  i++;
 	  if ( i == argc ) {
@@ -156,5 +174,6 @@ MainDisplayHelp
 		  		  ColorGreen, ColorReset, ColorYellow, ColorReset);
   fprintf(stdout, "        %s-f, --filesmax  %s: %sSpecify the maximum number of files create%s\n",
 		          ColorGreen, ColorReset, ColorYellow, ColorReset);
-		  
+  fprintf(stdout, "        %s-m, --maxfilesize %s: %sSpecify the maximum size of files created%s\n",
+		          ColorGreen, ColorReset, ColorYellow, ColorReset);
 }

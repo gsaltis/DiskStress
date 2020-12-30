@@ -129,11 +129,14 @@ DiskStressThread
   printf("%sDisk Stress Thread       :%s started%s\n"
 	     "  %sFiles Directory        : %s%s%s\n"
 		 "  %sAvailable Bytes        : %s%llu%s\n" 
-		 "  %sMax Files              : %s%llu%s\n", 
+		 "  %sMax Files              : %s%llu%s\n"
+		 "  %sMax File Size          : %s%llu%s\n",
+
 		 ColorGreen, ColorYellow, ColorReset, 
 		 ColorCyan, ColorYellow, diskStressDirectory, ColorReset,
 		 ColorCyan, ColorYellow, diskStressThreadAvailableBytes, ColorReset,
-		 ColorCyan, ColorYellow, diskStressThreadMaxFiles, ColorReset);
+		 ColorCyan, ColorYellow, diskStressThreadMaxFiles, ColorReset,
+		 ColorCyan, ColorYellow, diskStressMaxFileSize, ColorReset);
   UserInputServerThreadStart();
 
   filesize = diskStressMaxFileSize;
@@ -302,4 +305,17 @@ DiskStressThreadGetFilesCreatedCount
   return diskStressThreadFilesCreatedCount;
 }
 
+/*****************************************************************************!
+ * Function : DiskStressThreadSetMaxFileSize
+ *****************************************************************************/
+void
+DiskStressThreadSetMaxFileSize
+(uint64_t InMaxFileSize)
+{
+  if ( InMaxFileSize == 0 ) {
+	return;
+  }
+
+  diskStressMaxFileSize = InMaxFileSize;
+}
 
