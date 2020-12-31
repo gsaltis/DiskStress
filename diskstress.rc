@@ -16,7 +16,7 @@
 PATH=/bin:/usr/bin:/sbin:/usr/sbin
 DESC="diskstress daemon"
 NAME=diskstress
-DAEMON=/home/pi/Source/DiskStress/diskstress
+DAEMON=/home/pi/Source/DiskStress/rel/diskstress
 PIDFILE=/var/run/diskstress.pid
 SCRIPTNAME=/etc/init.d/"$NAME"
 EXTRA_OPTS=
@@ -25,15 +25,13 @@ test -f $DAEMON || exit 0
 . /lib/lsb/init-functions
 
 start() {
-  export speed=4
-  export speedflag=-s
   log_daemon_msg "Starting Disk Stress Service" "diskstress"
-  start_daemon -p $PIDFILE $DAEMON -d /home/pi/Source/DiskStress/DiskStressFiles/
+  start_daemon -p $PIDFILE $DAEMON -l /home/pi/DiskStressLog.txt -d /home/pi/Source/DiskStress/DiskStressFiles/ -w /home/pi/Source/DiskStress/www
   log_end_msg $?
 }
 
 stop() {
-  log_daemon_msg "Stopping CAN Monitor Service" "diskstress"
+  log_daemon_msg "Stopping Disk Stress Service" "diskstress"
   killproc -p $PIDFILE $DAEMON
   RETVAL=$?
   [ $RETVAL -eq 0 ] && [ -e "$PIDFILE" ] && rm -f $PIDFILE
@@ -54,13 +52,13 @@ case "$1" in
   ;;
 
   restart)
-    log_daemon_msg "Restarting CAN Monitor Service" "diskstress" 
+    log_daemon_msg "Restarting Disk Stress Service" "diskstress" 
     $0 stop
     $0 start
   ;;
 
   reload|force-reload)
-    log_daemon_msg "Reloading configuration files for CAN Monitor Service" "diskstress"
+    log_daemon_msg "Reloading Disk Stress Service" "diskstress"
     log_end_msg 0
    ;;
 

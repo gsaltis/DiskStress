@@ -24,6 +24,8 @@
 #include "WebSocketServerThread.h"
 #include "RPiBaseModules/mongoose.h"
 #include "GeneralUtilities/String.h"
+#include "GeneralUtilities/MemoryManager.h"
+#include "Log.h"
 
 /*****************************************************************************!
  * Local Macros
@@ -90,6 +92,7 @@ HTTPServerThreadStart
 {
   if ( pthread_create(&HTTPServerThreadID, NULL, HTTPServerThread, NULL) ) {
     fprintf(stderr, "%s\"Could not start \"HTTP Server Thread\"%s\n", ColorRed, ColorReset);
+	LogAppend("Could not start HTTP Server Thread");
     exit(EXIT_FAILURE);
   }
 }
@@ -106,16 +109,22 @@ HTTPServerThread
 
   if ( NULL == HTTPConnection ) {
     fprintf(stderr, "%sFailed to create HTTP server%s\n", ColorBrightRed, ColorReset);
+	LogAppend("Could not create HTTP Server Thread");
     exit(EXIT_FAILURE);
   }
 
   mg_set_protocol_http_websocket(HTTPConnection);
   HTTPServerOptions.document_root = HTTPWWWDirectory;
   HTTPServerOptions.enable_directory_listing = "yes";
+  LogAppend("HTTP Server Thread       : started");
+  LogAppend("  Port                   : %s", HTTPPortAddress);
+  LogAppend("  Directory              : %s", HTTPWWWDirectory);
   printf("%sHTTP Server Thread       : %sstarted%s\n"
-		 "  %sPort                   : %s%s%s\n",
+		 "  %sPort                   : %s%s%s\n"
+		 "  %sDirectory              : %s%s%s\n",
          ColorGreen, ColorYellow, ColorReset,
-         ColorCyan, ColorYellow, HTTPPortAddress, ColorReset);
+         ColorCyan, ColorYellow, HTTPPortAddress, ColorReset,
+         ColorCyan, ColorYellow, HTTPWWWDirectory, ColorReset);
 
   WebSocketServerThreadStart();
   while ( true ) {
@@ -123,6 +132,22 @@ HTTPServerThread
   }
 }
 
+/*****************************************************************************!
+ * Function : HTTPServerSetDirectory
+ *****************************************************************************/
+void
+HTTPServerSetDirectory
+(string InFilename)
+{
+  if ( InFilename == NULL ) {
+	return;
+  }
+
+  if ( HTTPWWWDirectory ) {
+	FreeMemory(HTTPWWWDirectory);
+  }
+  HTTPWWWDirectory = StringCopy(InFilename);
+}
 
 /*****************************************************************************!
  * Function : HTTPServerGetThreadID

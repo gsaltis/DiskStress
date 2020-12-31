@@ -15,6 +15,7 @@
 /*****************************************************************************!
  * Local Headers
  *****************************************************************************/
+#include "GeneralUtilities/String.h"
 
 /*****************************************************************************!
  * Exported Macros
@@ -38,5 +39,9 @@ HTTPServerThreadStart
 void
 HTTPServerThreadInit
 ();
+
+void
+HTTPServerSetDirectory
+(string InFilename);
 
 #endif // _httpserverthread_h_

@@ -135,6 +135,27 @@ WebSocketIFHandleResponseInit
 {
   WebSocketIFHandleDiskInfoPacket(InPacket.diskinfo);
   WebSocketIFHandleFileInfoPacket(InPacket.fileinfo);
+  WebSocketIFHandleFileSizeInfoPacket(InPacket.filesizeinfo);
+}
+
+/*****************************************************************************!
+ * Function : WebSocketIFHandleFileSizeInfoPacket
+ *****************************************************************************/
+function
+WebSocketIFHandleFileSizeInfoPacket
+(InInfoPacket)
+{
+  var elements = [
+    { "name" : "FileMaxFiles", "field" : "maxfiles" },
+    { "name" : "FileMaxFileSize", "field" : "maxfilesize" }
+  ];
+  
+  for (i = 0; i < elements.length; i++) {
+    document.getElementById(elements[i].name).innerHTML = InInfoPacket[elements[i].field];
+  }
+
+  clearTimeout(GetFileInfoID);
+  GetFileInfoID = setTimeout(CBWebSocketIFGetFileInfo, 10000);
 }
 
 /*****************************************************************************!
@@ -158,6 +179,8 @@ WebSocketIFHandleFileInfoPacket
   clearTimeout(GetFileInfoID);
   GetFileInfoID = setTimeout(CBWebSocketIFGetFileInfo, 10000);
 }
+
+
 
 /*****************************************************************************!
  * Function : WebSocketIFHandleDiskInfoPacket

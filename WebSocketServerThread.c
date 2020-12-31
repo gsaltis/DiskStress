@@ -37,6 +37,7 @@
 #include "RPiBaseModules/json.h"
 #include "GeneralUtilities/MemoryManager.h"
 #include "DiskInformation.h"
+#include "Log.h"
 
 /*****************************************************************************!
  * Local Macros
@@ -141,7 +142,8 @@ WebSocketServerThreadStart
 {
   WebSocketServerCreateInfoScript();
   if ( pthread_create(&WebSocketServerThreadID, NULL, WebSocketServerThread, NULL) ) {
-    fprintf(stderr, "%sCould not start \"Web Socket Server Thread\"%s\n", ColorRed, ColorReset);
+	LogAppend("Could not start WebSocket Server Thread");
+    fprintf(stdout, "%sCould not start \"Web Socket Server Thread\"%s\n", ColorRed, ColorReset);
     exit(EXIT_FAILURE);
   }
 }
@@ -156,7 +158,8 @@ WebSocketServerThread
   mg_mgr_init(&WebSocketManager, NULL);
   WebSocketConnection = mg_bind(&WebSocketManager, WebSocketPortAddress, WebSocketServerEventHandler);
   if ( NULL == WebSocketConnection ) {
-    fprintf(stderr, "%sFailed to create WebSocket server%s\n", ColorBrightRed, ColorReset);
+	LogAppend("Failed to create WebSocket Server");
+    fprintf(stdout, "%sFailed to create WebSocket server%s\n", ColorBrightRed, ColorReset);
     exit(EXIT_FAILURE);
   }
   mg_set_protocol_http_websocket(WebSocketConnection);
@@ -169,6 +172,9 @@ WebSocketServerThread
 		 ColorGreen, ColorYellow, ColorReset,
 		 ColorCyan, ColorYellow, WebSocketPortAddress, ColorReset, 
 		 ColorCyan, ColorYellow, WebSocketWWWDirectory, ColorReset);
+  LogAppend("WebSocket Server Thread : started");
+  LogAppend("  Port                  : %s", WebSocketPortAddress);
+  LogAppend("  Directory             : %s", WebSocketWWWDirectory);
   DiskStressThreadStart();
   while ( true ) {
     mg_mgr_poll(&WebSocketManager, WebSocketServerPollPeriod);
@@ -384,7 +390,13 @@ WebSocketHandleInit
   string                                s;
   JSONOut*                              object;
   JSONOut*                              fileInfo;
+  JSONOut*								sizeInfo;
 
+  sizeInfo = JSONOutCreateObject("filesizeinfo");
+  JSONOutObjectAddObjects(sizeInfo,
+				  		  JSONOutCreateLongLong("maxfiles", DiskStressThreadGetMaxFiles()),
+						  JSONOutCreateLongLong("maxfilesize", DiskStressThreadGetMaxFileSize()),
+						  NULL);
 
   fileInfo = JSONOutCreateObject("fileinfo");
   JSONOutObjectAddObjects(fileInfo,
@@ -399,6 +411,7 @@ WebSocketHandleInit
   body = JSONOutCreateObject("body");
   JSONOutObjectAddObject(body, diskInfo);
   JSONOutObjectAddObject(body, fileInfo);
+  JSONOutObjectAddObject(body, sizeInfo);
   JSONOutObjectAddObjects(object,
                           JSONOutCreateString("packettype", "response"),
                           JSONOutCreateInt("packetid", JSONIFGetInt(InJSONDoc, "packetid")),

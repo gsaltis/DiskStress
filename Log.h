@@ -1,16 +1,15 @@
 /*****************************************************************************
- * FILE NAME    : DiskStressThread.h
- * DATE         : December 13 2020
+ * FILE NAME    : Log.h
+ * DATE         : December 29 2020
  * PROJECT      : NONE
  * COPYRIGHT    : Copyright (C) 2020 by Gregory R Saltis
  *****************************************************************************/
-#ifndef _diskstressthread_h_
-#define _diskstressthread_h_
+#ifndef _log_h_
+#define _log_h_
 
 /*****************************************************************************!
  * Global Headers
  *****************************************************************************/
-#include <pthread.h>
 
 /*****************************************************************************!
  * Local Headers
@@ -28,60 +27,24 @@
 /*****************************************************************************!
  * Exported Functions
  *****************************************************************************/
-uint64_t
-DiskStressGetFileSize
+void
+LogInitialize
 ();
 
 void
-DiskStressThreadSetDirectory
-(string InDirectoryName);
-
-void
-DiskStressFileList
-();
-
-uint32_t
-DiskStressGetFileCount
-();
+LogSetFilename
+(string InFilename);
 
 string
-DiskStressGenFilename
-();
-
-pthread_t
-DiskStressGetThreadID
+LogGetFilename
 ();
 
 void
-DiskStressThreadStart
-();
+LogAppend
+(string InMessage, ...);
 
 void
-DiskStressThreadInit
+LogFileRemove
 ();
 
-void
-DiskStressThreadSetMaxFiles
-(uint64_t InMaxFiles);
-
-uint64_t
-DiskStressThreadGetFilesRemovedCount
-();
-
-uint64_t
-DiskStressThreadGetFilesCreatedCount
-();
-
-void
-DiskStressThreadSetMaxFileSize
-(uint64_t InMaxFileSize);
-
-uint64_t
-DiskStressThreadGetMaxFileSize
-();
-
-uint64_t
-DiskStressThreadGetMaxFiles
-();
-
-#endif // _diskstressthread_h_
+#endif // _log_h_

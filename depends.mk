@@ -6,6 +6,8 @@ DiskStressThread.o: DiskStressThread.c DiskStressThread.h \
  DiskInformation.h JSONOut.h
 FileInfoBlock.o: FileInfoBlock.c FileInfoBlock.h \
  GeneralUtilities/String.h GeneralUtilities/MemoryManager.h
+greg.o: greg.c Log.h GeneralUtilities/String.h \
+ GeneralUtilities/MemoryManager.h
 HTTPServerThread.o: HTTPServerThread.c HTTPServerThread.h \
  GeneralUtilities/ANSIColors.h WebSocketServerThread.h \
  GeneralUtilities/String.h RPiBaseModules/mongoose.h
@@ -13,10 +15,12 @@ JSONIF.o: JSONIF.c RPiBaseModules/json.h GeneralUtilities/String.h \
  GeneralUtilities/MemoryManager.h JSONIF.h
 JSONOut.o: JSONOut.c JSONOut.h GeneralUtilities/String.h \
  GeneralUtilities/MemoryManager.h
+Log.o: Log.c Log.h GeneralUtilities/String.h \
+ GeneralUtilities/MemoryManager.h
 main.o: main.c main.h UserInputServerThread.h WebSocketServerThread.h \
  GeneralUtilities/String.h DiskStressThread.h HTTPServerThread.h \
  DiskInformation.h JSONOut.h GeneralUtilities/MemoryManager.h \
- GeneralUtilities/ANSIColors.h GeneralUtilities/NumericTypes.h
+ GeneralUtilities/ANSIColors.h GeneralUtilities/NumericTypes.h Log.h
 UserInputServerThread.o: UserInputServerThread.c UserInputServerThread.h \
  GeneralUtilities/String.h RPiBaseModules/linenoise.h HTTPServerThread.h \
  GeneralUtilities/ANSIColors.h DiskStressThread.h DiskInformation.h \

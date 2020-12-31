@@ -73,7 +73,7 @@
 #DiskInfoSection {
     position                            : absolute;
     left                                : 0px;
-    top                                 : 130px;
+    top                                 : 220px;
     width                               : var(--DiskInfoSectionWidth);
     height                              : calc(var(--DiskInfoLabelHeight) * 13.5);
     border                              : var(--GeneralBorder);
@@ -91,7 +91,7 @@
 #FileInfoSection {
     position                            : absolute;
     left                                : 0px;
-    top                                 : 0px;
+    top                                 : 90px;
     width                               : var(--DiskInfoSectionWidth);
     height                              : calc(var(--DiskInfoLabelHeight) * 5.5);
     border                              : var(--GeneralBorder);
@@ -99,6 +99,24 @@
 }
 
 #FileInfoTextArea {
+    position                            : absolute;
+    left                                : 0px;
+    right                               : 0px;
+    bottom                              : 0px;
+    top                                 : var(--HeaderHeightSmall);
+}
+
+#FileSizeInfoSection {
+    position                            : absolute;
+    left                                : 0px;
+    top                                 : 0px;
+    width                               : var(--DiskInfoSectionWidth);
+    height                              : calc(var(--DiskInfoLabelHeight) * 3.5);
+    border                              : var(--GeneralBorder);
+    background                          : var(--GeneralBackgroundMedium);
+}
+
+#FileSizeTextArea {
     position                            : absolute;
     left                                : 0px;
     right                               : 0px;

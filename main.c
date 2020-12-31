@@ -28,6 +28,7 @@
 #include "GeneralUtilities/MemoryManager.h"
 #include "GeneralUtilities/ANSIColors.h"
 #include "GeneralUtilities/NumericTypes.h"
+#include "Log.h"
 
 /*****************************************************************************!
  * Local Macros
@@ -63,7 +64,11 @@ main(int argc, char**argv)
   WebSocketServerThreadInit();
   DiskStressThreadInit();
 
+  LogInitialize();
   MainProcessCommandLine(argc, argv);
+  LogFileRemove();
+  LogAppend("Log Initialize");
+
   DiskInformationInitialize();
 
   HTTPServerThreadStart();
@@ -103,7 +108,19 @@ MainProcessCommandLine
         exit(EXIT_FAILURE);
       }
 	  WebSocketServerSetDirectory(argv[i]);
+	  HTTPServerSetDirectory(argv[i]);
       continue;
+    }
+
+	if ( StringEqualsOneOf(command, "-l", "--logfile", NULL) ) {
+	  i++;
+	  if ( i == argc ) {
+		fprintf(stderr, "%s\"%s\"%s %srequires a filename%s\n", ColorRed, command, ColorReset, ColorYellow, ColorReset);
+		MainDisplayHelp();
+		exit(EXIT_FAILURE);
+	  }
+	  LogSetFilename(argv[i]);
+	  continue;
     }
 
 	if ( StringEqualsOneOf(command, "-m", "--maxfilesize", NULL) ) {

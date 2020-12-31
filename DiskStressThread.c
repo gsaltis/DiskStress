@@ -26,6 +26,7 @@
 #include "FileInfoBlock.h"
 #include "GeneralUtilities/MemoryManager.h"
 #include "DiskInformation.h"
+#include "Log.h"
 
 /*****************************************************************************!
  * Local Macros
@@ -53,10 +54,10 @@ static pthread_t
 DiskStressThreadID;
 
 static uint64_t
-diskStressThreadAvailableBytes;
+diskStressMaxFileSize = 500000;
 
 static uint64_t
-diskStressMaxFileSize = 500000;
+diskStressThreadAvailableBytes;
 
 static uint64_t
 diskStressThreadMaxFiles = 0;
@@ -126,6 +127,12 @@ DiskStressThread
     diskStressThreadMaxFiles++;
   }
   FileInfoBlockSetCreate(diskStressThreadMaxFiles);
+  LogAppend("Disk Stress Thread      : started");
+  LogAppend("  Files Directory       : %s", diskStressDirectory);
+  LogAppend("  Available Bytes       : %lld", diskStressThreadAvailableBytes);
+  LogAppend("  Max Files             : %lld", diskStressThreadMaxFiles);
+  LogAppend("  Max File Size         : %lld", diskStressMaxFileSize);
+
   printf("%sDisk Stress Thread       :%s started%s\n"
 	     "  %sFiles Directory        : %s%s%s\n"
 		 "  %sAvailable Bytes        : %s%llu%s\n" 
@@ -317,5 +324,25 @@ DiskStressThreadSetMaxFileSize
   }
 
   diskStressMaxFileSize = InMaxFileSize;
+}
+
+/*****************************************************************************!
+ * Function : DiskStressThreadGetMaxFileSize
+ *****************************************************************************/
+uint64_t
+DiskStressThreadGetMaxFileSize
+()
+{
+  return diskStressMaxFileSize;
+}
+
+/*****************************************************************************!
+ * Function : DiskStressThreadGetMaxFiles
+ *****************************************************************************/
+uint64_t
+DiskStressThreadGetMaxFiles
+()
+{
+  return diskStressThreadMaxFiles;
 }
 

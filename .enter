@@ -1,6 +1,9 @@
 export PS1="\e[31;1mDiskStress : \e[0m"
 alias d="./diskstress"
-alias m=make
+alias m="make devel"
+alias mr="make release"
 alias g="gdb ./diskstress"
 alias mc="make clean"
 alias mj="make junkclean"
+alias pk="sudo pkill diskstress"
+alias rb="sudo reboot"
