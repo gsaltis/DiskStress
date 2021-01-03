@@ -11,6 +11,7 @@
  * Global Headers
  *****************************************************************************/
 #include <pthread.h>
+#include <time.h>
 
 /*****************************************************************************!
  * Local Headers
@@ -82,6 +83,10 @@ DiskStressThreadGetMaxFileSize
 
 uint64_t
 DiskStressThreadGetMaxFiles
+();
+
+time_t
+DiskStressThreadGetStartTime
 ();
 
 #endif // _diskstressthread_h_

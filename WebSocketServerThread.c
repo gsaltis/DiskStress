@@ -120,6 +120,10 @@ void
 WebSocketHandleGetFileInfo
 (struct mg_connection* InConnection, json_value* InJSONDoc);
 
+void
+WebSocketHandleGetRuntimeInfo
+(struct mg_connection* InConnection, json_value* InJSONDoc);
+
 /*****************************************************************************!
  * Function : WebSocketServerThreadInit
  *****************************************************************************/
@@ -334,8 +338,47 @@ WebSocketHandleRequest
     WebSocketHandleGetDiskInfo(InConnection, InJSONDoc);
   } else if ( StringEqual(type, "getfileinfo") ) {
 	WebSocketHandleGetFileInfo(InConnection, InJSONDoc);
+  } else if ( StringEqual(type, "getruntimeinfo") ) {
+	WebSocketHandleGetRuntimeInfo(InConnection, InJSONDoc);
   }
   FreeMemory(type);
+}
+
+/*****************************************************************************!
+ * Function : WebSocketHandleGetRuntimeInfo
+ *****************************************************************************/
+void
+WebSocketHandleGetRuntimeInfo
+(struct mg_connection* InConnection, json_value* InJSONDoc)
+{
+  JSONOut*                              body;
+  string                                s;
+  JSONOut*                              object;
+  JSONOut*                              fileInfo;
+
+
+  fileInfo = JSONOutCreateObject("runtimeinfo");
+  JSONOutObjectAddObjects(fileInfo,
+                          JSONOutCreateInt("starttime", DiskStressThreadGetStartTime()),
+						  JSONOutCreateInt("currenttime", (int)time(NULL)),
+                          NULL);
+  
+  object = JSONOutCreateObject(NULL);
+  body = JSONOutCreateObject("body");
+  JSONOutObjectAddObject(body, fileInfo);
+  JSONOutObjectAddObjects(object,
+                          JSONOutCreateString("packettype", "response"),
+                          JSONOutCreateInt("packetid", JSONIFGetInt(InJSONDoc, "packetid")),
+                          JSONOutCreateInt("time", (int)time(NULL)),
+                          JSONOutCreateString("type", "runtimeinfo"),
+                          JSONOutCreateString("status", "OK"),
+                          body,
+                          NULL);
+  
+  s = JSONOutToString(object, 0);
+  WebSocketFrameSend(InConnection, s, strlen(s));
+  FreeMemory(s);
+  JSONOutDestroy(object);
 }
 
 /*****************************************************************************!

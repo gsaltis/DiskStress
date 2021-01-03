@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <errno.h>
+#include <time.h>
 
 /*****************************************************************************!
  * Local Headers
@@ -70,6 +71,9 @@ diskStressThreadFilesCreatedCount = 0;
 
 static int
 diskStressThreadSleepPeriod = 2;
+
+static time_t
+diskStressThreadStartTime = 0;
 
 /*****************************************************************************!
  * Local Functions
@@ -147,6 +151,7 @@ DiskStressThread
   UserInputServerThreadStart();
 
   filesize = diskStressMaxFileSize;
+  diskStressThreadStartTime = time(NULL);
   while ( true ) {
 	index = rand();
 	index %= diskStressThreadMaxFiles;
@@ -344,5 +349,15 @@ DiskStressThreadGetMaxFiles
 ()
 {
   return diskStressThreadMaxFiles;
+}
+
+/*****************************************************************************!
+ * Function : DiskStressThreadGetStartTime
+ *****************************************************************************/
+time_t
+DiskStressThreadGetStartTime
+()
+{
+  return diskStressThreadStartTime;
 }
 

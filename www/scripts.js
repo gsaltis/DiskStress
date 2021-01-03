@@ -28,6 +28,9 @@ GetDiskInfoID;
 var
 GetFileInfoID;
 
+var
+GetRuntimeInfoID = 0;
+
 /*****************************************************************************!
  * Function : CBSystemInitialize
  *****************************************************************************/
@@ -123,6 +126,10 @@ WebSocketIFHandleResponse
       WebSocketIFHandleFileInfoPacket(InPacket.body.fileinfo);
       return;
     }
+    if ( InPacket.type == "runtimeinfo" ) {
+      WebSocketIFHandleRuntimeInfoPacket(InPacket.body.runtimeinfo);
+      return;
+    }
   }
 }
 
@@ -136,6 +143,8 @@ WebSocketIFHandleResponseInit
   WebSocketIFHandleDiskInfoPacket(InPacket.diskinfo);
   WebSocketIFHandleFileInfoPacket(InPacket.fileinfo);
   WebSocketIFHandleFileSizeInfoPacket(InPacket.filesizeinfo);
+  clearTimeout(GetRuntimeInfoID);
+  GetRuntimeInfoID = setTimeout(CBWebSocketIFGetRuntimeInfo, 10000);
 }
 
 /*****************************************************************************!
@@ -156,6 +165,17 @@ WebSocketIFHandleFileSizeInfoPacket
 
   clearTimeout(GetFileInfoID);
   GetFileInfoID = setTimeout(CBWebSocketIFGetFileInfo, 10000);
+}
+
+/*****************************************************************************!
+ * Function : WebSocketIFHandleRuntimeInfoPacket
+ *****************************************************************************/
+function
+WebSocketIFHandleRuntimeInfoPacket
+(InInfoPacket)
+{
+  clearTimeout(GetRuntimeInfoID);
+  GetRuntimeInfoID = setTimeout(CBWebSocketIFGetRuntimeInfo, 10000);
 }
 
 /*****************************************************************************!
@@ -278,6 +298,16 @@ CBWebSocketIFGetDiskInfo
 ()
 {
   WebSocketIFSendSimpleRequest("getdiskinfo");
+}
+
+/*****************************************************************************!
+ * Function : CBWebSocketIFGetRuntimeInfo
+ *****************************************************************************/
+function
+CBWebSocketIFGetRuntimeInfo
+()
+{
+  WebSocketIFSendSimpleRequest("getruntimeinfo");
 }
 
 /*****************************************************************************!
