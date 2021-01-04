@@ -360,3 +360,58 @@ FileInfoBlockRemoveFile
   unlink(filename);
 }
 
+/*****************************************************************************!
+ * Function : FileInfoBlockSetGetMap
+ *****************************************************************************/
+void
+FileInfoBlockSetGetMap
+(int* InMapSize, uint64_t** InMap)
+{
+  int                                   i, size;
+  int                                   bitIndex, byteIndex;
+  int                                   byteCount;
+  uint64_t*                             map;
+  uint64_t                              b;
+  
+  byteCount = fileInfoBlockSetSize / 64;
+  if ( fileInfoBlockSetSize % 64 > 0 ) {
+	byteCount++;
+  }
+
+  size = sizeof(uint64_t) * byteCount; 
+  map = (uint64_t*)GetMemory(size);
+  memset(map, 0x00, size);
+  bitIndex = 0;
+  byteIndex = 0;
+  b = 0;
+
+  for ( i = 0 ; i < fileInfoBlockSetSize ; i++ ) {
+    if ( fileInfoBlockSet[i].filesize > 0 ) {
+      b |= (1 << bitIndex); 
+    }
+	bitIndex++;
+	if ( bitIndex == 64 ) {
+	  map[byteIndex] = b;
+	  byteIndex++;
+	  bitIndex = 0;
+	  b = 0;
+	}
+  }
+  if ( bitIndex > 0 ) {
+	map[byteIndex] = b;
+	byteIndex++;
+  }
+  *InMap = map;
+  *InMapSize= byteIndex;
+}
+
+/*****************************************************************************!
+ * 
+ *****************************************************************************/
+int
+FileInfoBlockSetGetSize
+()
+{
+  return fileInfoBlockSetSize;
+}
+

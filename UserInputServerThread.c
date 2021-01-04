@@ -28,6 +28,7 @@
 #include "GeneralUtilities/ANSIColors.h"
 #include "DiskStressThread.h"
 #include "DiskInformation.h"
+#include "FileInfoBlock.h"
 
 /*****************************************************************************!
  * Local Macros
@@ -63,6 +64,10 @@ UserInputProcessCommandQuit
 
 void
 UserInputProcessCommand
+(StringList* InCommand);
+
+void
+UserInputProcessCommandMap
 (StringList* InCommand);
 
 void*
@@ -424,6 +429,11 @@ UserInputProcessCommand
     return;
   }
 
+  if ( StringEqualNoCase(command, "map") ) {
+	UserInputProcessCommandMap(InCommand);
+	return;
+  }
+
   if ( StringEqualNoCase(command, "help") ) {
     UserInputProcessCommandHelp(InCommand);
     return;
@@ -485,3 +495,49 @@ UserInputProcessCommandHelp
 {
   
 }
+
+
+/*****************************************************************************!
+ * Function : UserInputProcessCommandMap
+ *****************************************************************************/
+void
+UserInputProcessCommandMap
+(StringList* InCommand)
+{
+  int                                   mapSize;
+  uint64_t*                             map;
+  int                                   i, n, j, k, m;
+  bool                                  t;
+  int									fileSetSize;
+
+  FileInfoBlockSetGetMap(&mapSize, &map);
+  fileSetSize = FileInfoBlockSetGetSize();
+
+  printf("Map Size : %d\n", fileSetSize);
+  printf("      0 : ");
+  fflush(stdout);
+  k = 0;
+  m = 0;
+  for ( i = 0 ; i < mapSize ; i++ ) {
+	for ( j = 0 ; j < 64 ; j++ ) {
+	  n = 1 << j;
+	  t = map[i] & n ? true : false;
+	  printf("%c", t ? '@' : '.');
+	  fflush(stdout);
+	  k++;
+	  if ( k == fileSetSize ) {
+		printf("\n");
+		break;
+	  }
+	}
+	if ( k == fileSetSize ) {
+	  break;
+	}
+	m += 64;
+	printf("\n");
+	if ( i + 1 < mapSize ) {
+	  printf("%7d : ", m);
+	}
+  }
+}
+

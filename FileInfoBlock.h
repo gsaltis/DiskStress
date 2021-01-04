@@ -109,4 +109,12 @@ FileInfoBlock*
 FileInfoBlockGetBlock
 (int InIndex);
 
+void
+FileInfoBlockSetGetMap
+(int* InMapSize, uint64_t** InMap);
+
+int
+FileInfoBlockSetGetSize
+();
+
 #endif /* _fileinfoblock_h_*/
