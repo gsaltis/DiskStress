@@ -69,8 +69,6 @@ main(int argc, char**argv)
   LogFileRemove();
   LogAppend("Log Initialize");
 
-  DiskInformationInitialize();
-
   HTTPServerThreadStart();
   
   pthread_join(UserInputGetThreadID(), NULL);

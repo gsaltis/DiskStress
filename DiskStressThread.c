@@ -106,6 +106,8 @@ DiskStressThreadStart
 ()
 {
   DiskStressThreadCleanFiles();
+  DiskInformationInitialize();
+
   if ( pthread_create(&DiskStressThreadID, NULL, DiskStressThread, NULL) ) {
     fprintf(stderr, "%sCould not start \"DiskStress Thread\"%s\n", ColorRed, ColorReset);
     exit(EXIT_FAILURE);
