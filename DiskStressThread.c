@@ -72,6 +72,9 @@ diskStressThreadFilesCreatedCount = 0;
 static int
 diskStressThreadSleepPeriod = 250000;
 
+static int
+diskStressThreadSleepPeriodMin = 10000;
+
 static time_t
 diskStressThreadStartTime = 0;
 
@@ -361,5 +364,48 @@ DiskStressThreadGetStartTime
 ()
 {
   return diskStressThreadStartTime;
+}
+
+/*****************************************************************************!
+ * Function : DiskStressThreadSetSleepPeriod
+ *****************************************************************************/
+void
+DiskStressThreadSetSleepPeriod
+(int InSleepPeriod)
+{
+  if ( InSleepPeriod < diskStressThreadSleepPeriodMin ) {
+    return;
+  }
+  diskStressThreadSleepPeriod = InSleepPeriod;
+}
+
+/*****************************************************************************!
+ * Function : DiskStressThreadValidateSleepPeriod
+ *****************************************************************************/
+bool
+DiskStressThreadValidateSleepPeriod
+(int InSleepPeriod)
+{
+  return InSleepPeriod >= diskStressThreadSleepPeriodMin;
+}
+
+/*****************************************************************************!
+ * Function : DiskStressThreadGetSleepPeriod
+ *****************************************************************************/
+int
+DiskStressThreadGetSleepPeriod
+()
+{
+  return diskStressThreadSleepPeriod;
+}
+
+/*****************************************************************************!
+ * Function : DiskStressThreadGetSleepPeriodMin
+ *****************************************************************************/
+int
+DiskStressThreadGetSleepPeriodMin
+()
+{
+  return diskStressThreadSleepPeriodMin;
 }
 

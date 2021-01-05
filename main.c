@@ -157,6 +157,32 @@ MainProcessCommandLine
 	  continue;
 	}
 
+	if ( StringEqualsOneOf(command, "-t", "--timesleep", NULL) ) {
+	  i++;
+	  if ( i == argc ) {
+		fprintf(stderr, "%s\"%s\"%s %srequires a integer%s\n", ColorRed, command, ColorReset, ColorYellow, ColorReset);
+		MainDisplayHelp();
+		exit(EXIT_FAILURE);
+	  }
+	  n = GetIntValueFromString(&b, argv[i]);
+	  if ( !b ) {
+		fprintf(stderr, "%s\"%s\"%s  %sdoes not appear to be an integer%s\n",
+						ColorRed, argv[i], ColorReset, ColorYellow, ColorReset);
+		MainDisplayHelp();
+		exit(EXIT_FAILURE);
+	  }
+      if ( !DiskStressThreadValidateSleepPeriod(n) ) {
+        fprintf(stderr, "%s%s%s %smust be greater than or equal to %s%d%s\n",
+                ColorRed, argv[i], ColorReset, ColorYellow, ColorGreen, DiskStressThreadGetSleepPeriodMin(), ColorReset);
+        MainDisplayHelp();
+        exit(EXIT_FAILURE);
+      }
+
+	  DiskStressThreadSetSleepPeriod(n);
+	  continue;
+	}
+
+
     if ( StringEqualsOneOf(command, "-d", "--directory", NULL) ) {
       i++;
       if ( i == argc ) {
@@ -181,14 +207,18 @@ MainDisplayHelp
 ()
 {
   fprintf(stdout, "Usage : %s {options}\n", mainProgramName);
-  fprintf(stdout, "        %s-h, --help      %s: %sDisplay this message%s\n", 
+  fprintf(stdout, "        %s-h, --help      %s  : %sDisplay this message%s\n", 
 				  ColorGreen, ColorReset, ColorYellow, ColorReset);
-  fprintf(stdout, "        %s-d, --directory %s: %sSpecify the file base directory%s\n", 
+  fprintf(stdout, "        %s-d, --directory %s  : %sSpecify the file base directory%s\n", 
 				  ColorGreen, ColorReset, ColorYellow, ColorReset);
-  fprintf(stdout, "        %s-w, --webdir    %s: %sSpecify the www files base directory%s\n", 
+  fprintf(stdout, "        %s-w, --webdir    %s  : %sSpecify the www files base directory%s\n", 
 		  		  ColorGreen, ColorReset, ColorYellow, ColorReset);
-  fprintf(stdout, "        %s-f, --filesmax  %s: %sSpecify the maximum number of files create%s\n",
+  fprintf(stdout, "        %s-f, --filesmax  %s  : %sSpecify the maximum number of files create%s\n",
 		          ColorGreen, ColorReset, ColorYellow, ColorReset);
   fprintf(stdout, "        %s-m, --maxfilesize %s: %sSpecify the maximum size of files created%s\n",
 		          ColorGreen, ColorReset, ColorYellow, ColorReset);
+  fprintf(stdout, "        %s-t, --timesleep   %s: %sSpecify the number of microseconds to wait between file operations (default %d)%s\n",
+		          ColorGreen, ColorReset, ColorYellow, DiskStressThreadGetSleepPeriod(), ColorReset);
+
+      
 }

@@ -89,4 +89,20 @@ time_t
 DiskStressThreadGetStartTime
 ();
 
+void
+DiskStressThreadSetSleepPeriod
+(int InSleepPeriod);
+
+bool
+DiskStressThreadValidateSleepPeriod
+(int InSleepPeriod);
+
+int
+DiskStressThreadGetSleepPeriodMin
+();
+
+int
+DiskStressThreadGetSleepPeriod
+();
+
 #endif // _diskstressthread_h_
