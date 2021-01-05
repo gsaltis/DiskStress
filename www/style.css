@@ -70,6 +70,39 @@
     opacity                             : .5
 }
 
+.GeneralSection {
+    position                            : absolute;
+    left                                : 0px;
+    width                               : var(--DiskInfoSectionWidth);
+    background                          : var(--GeneralBackgroundMedium);
+    border                              : var(--GeneralBorder);
+}
+ 
+#TestSection {
+    top                                 : calc(var(--DiskInfoLabelHeight) * 13.5 + 20px);
+    height                              : calc(var(--DiskInfoLabelHeight) * 5);
+}
+
+#TestButton {
+    top                                 : calc(var(--HeaderHeightSmall) + 5px);
+    left                                : 5px;
+}
+
+#TestColorSection {
+    position                            : absolute;
+    top                                 : 50px;
+    left                                : 5px;
+    right                               : 5px;
+    bottom                              : 5px;
+    background                          : #008;
+    border-radius                       : 40px;
+    transition                          : background 1s ease;
+}
+  
+.TestColorSectionActive {
+    background                          : #800 !important;
+}
+
 #DiskInfoSection {
     position                            : absolute;
     left                                : 0px;

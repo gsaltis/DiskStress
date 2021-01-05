@@ -595,3 +595,19 @@ CBFileMapSectionButtonPushed
 {
   WebSocketIFSendSimpleRequest("getblockinfo");
 }
+
+/*****************************************************************************!
+ * Function : CBChangeColorTest
+ *****************************************************************************/
+function
+CBChangeTestColor
+()
+{
+  var s = document.getElementById("TestColorSection");
+  if ( s.className == "TestColorSectionActive" ) {
+    s.className = "";
+  } else {
+    s.className = "TestColorSectionActive";
+  }
+}
+
