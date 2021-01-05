@@ -14,6 +14,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <time.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -38,6 +39,8 @@
 #include "GeneralUtilities/MemoryManager.h"
 #include "DiskInformation.h"
 #include "Log.h"
+#include "FileInfoBlock.h"
+#include "GeneralUtilities/NumericTypes.h"
 
 /*****************************************************************************!
  * Local Macros
@@ -81,6 +84,9 @@ WebSocketPortAddress = NULL;
 static int
 WebSocketServerPollPeriod = 20;
 
+time_t
+WebSocketServerStartTime = 0;
+
 /*****************************************************************************!
  * Local Functions
  *****************************************************************************/
@@ -123,6 +129,14 @@ WebSocketHandleGetFileInfo
 void
 WebSocketHandleGetRuntimeInfo
 (struct mg_connection* InConnection, json_value* InJSONDoc);
+
+void
+WebSocketHandleGetBlockInfo
+(struct mg_connection* InConnection, json_value* InJSONDoc);
+
+JSONOut*
+WebSocketCreateFileInfoSection
+();
 
 /*****************************************************************************!
  * Function : WebSocketServerThreadInit
@@ -180,6 +194,7 @@ WebSocketServerThread
   LogAppend("  Port                  : %s", WebSocketPortAddress);
   LogAppend("  Directory             : %s", WebSocketWWWDirectory);
   DiskStressThreadStart();
+  WebSocketServerStartTime = time(NULL);
   while ( true ) {
     mg_mgr_poll(&WebSocketManager, WebSocketServerPollPeriod);
   }
@@ -340,8 +355,45 @@ WebSocketHandleRequest
 	WebSocketHandleGetFileInfo(InConnection, InJSONDoc);
   } else if ( StringEqual(type, "getruntimeinfo") ) {
 	WebSocketHandleGetRuntimeInfo(InConnection, InJSONDoc);
+  } else if ( StringEqual(type, "getblockinfo") ) {
+	WebSocketHandleGetBlockInfo(InConnection, InJSONDoc);
   }
   FreeMemory(type);
+}
+
+/*****************************************************************************!
+ * Function : WebSocketHandleGetRuntimeInfo
+ *****************************************************************************/
+void
+WebSocketHandleGetBlockInfo
+(struct mg_connection* InConnection, json_value* InJSONDoc)
+{
+  JSONOut*                              body;
+  string                                s;
+  JSONOut*                              object;
+  JSONOut*                              blockInfo;
+
+  blockInfo = JSONOutCreateObject("blockinfo");
+  JSONOutObjectAddObjects(blockInfo,
+				  		  FileInfoBlockSetToJSON(),
+                          NULL);
+  
+  object = JSONOutCreateObject(NULL);
+  body = JSONOutCreateObject("body");
+  JSONOutObjectAddObject(body, blockInfo);
+  JSONOutObjectAddObjects(object,
+                          JSONOutCreateString("packettype", "response"),
+                          JSONOutCreateInt("packetid", JSONIFGetInt(InJSONDoc, "packetid")),
+                          JSONOutCreateInt("time", (int)time(NULL)),
+                          JSONOutCreateString("type", "blockinfo"),
+                          JSONOutCreateString("status", "OK"),
+                          body,
+                          NULL);
+  
+  s = JSONOutToString(object, 0);
+  WebSocketFrameSend(InConnection, s, strlen(s));
+  FreeMemory(s);
+  JSONOutDestroy(object);
 }
 
 /*****************************************************************************!
@@ -393,15 +445,8 @@ WebSocketHandleGetFileInfo
   JSONOut*                              object;
   JSONOut*                              fileInfo;
 
-
-  fileInfo = JSONOutCreateObject("fileinfo");
-  JSONOutObjectAddObjects(fileInfo,
-                          JSONOutCreateLongLong("size", DiskStressGetFileSize()),
-                          JSONOutCreateInt("count", DiskStressGetFileCount()),
-  						  JSONOutCreateInt("created", DiskStressThreadGetFilesCreatedCount()),
-						  JSONOutCreateInt("destroyed", DiskStressThreadGetFilesRemovedCount()),
-                          NULL);
-  
+  fileInfo = WebSocketCreateFileInfoSection();  
+ 
   object = JSONOutCreateObject(NULL);
   body = JSONOutCreateObject("body");
   JSONOutObjectAddObject(body, fileInfo);
@@ -422,6 +467,26 @@ WebSocketHandleGetFileInfo
 }
 
 /*****************************************************************************!
+ * Function : WebSocketCreateFileInfoSection 
+ *****************************************************************************/
+JSONOut*
+WebSocketCreateFileInfoSection
+()
+{
+  JSONOut*                              fileInfo;
+  char                                  s1[32], s2[32], s3[32], s4[32];
+
+  fileInfo = JSONOutCreateObject("fileinfo");
+  JSONOutObjectAddObjects(fileInfo,
+                          JSONOutCreateString("size",      ConvertLongLongToCommaString(DiskStressGetFileSize(), s1)),
+                          JSONOutCreateString("count",     ConvertIntToCommaString(DiskStressGetFileCount(), s2)),
+  						  JSONOutCreateString("created",   ConvertIntToCommaString(DiskStressThreadGetFilesCreatedCount(), s3)),
+						  JSONOutCreateString("destroyed", ConvertIntToCommaString(DiskStressThreadGetFilesRemovedCount(), s4)),
+                          NULL);
+  return fileInfo;
+}
+
+/*****************************************************************************!
  * Function : WebSocketHandleInit
  *****************************************************************************/
 void
@@ -434,20 +499,16 @@ WebSocketHandleInit
   JSONOut*                              object;
   JSONOut*                              fileInfo;
   JSONOut*								sizeInfo;
+  char                                  s1[32], s2[32];
 
   sizeInfo = JSONOutCreateObject("filesizeinfo");
   JSONOutObjectAddObjects(sizeInfo,
-				  		  JSONOutCreateLongLong("maxfiles", DiskStressThreadGetMaxFiles()),
-						  JSONOutCreateLongLong("maxfilesize", DiskStressThreadGetMaxFileSize()),
+				  		  JSONOutCreateString("maxfiles",    ConvertLongLongToCommaString(DiskStressThreadGetMaxFiles(),s1)),
+                          JSONOutCreateLongLong("maxfilesint", DiskStressThreadGetMaxFiles()),
+						  JSONOutCreateString("maxfilesize", ConvertLongLongToCommaString(DiskStressThreadGetMaxFileSize(), s2)),
 						  NULL);
 
-  fileInfo = JSONOutCreateObject("fileinfo");
-  JSONOutObjectAddObjects(fileInfo,
-                          JSONOutCreateLongLong("size", DiskStressGetFileSize()),
-                          JSONOutCreateInt("count", DiskStressGetFileCount()),
-						  JSONOutCreateInt("created", DiskStressThreadGetFilesCreatedCount()),
-						  JSONOutCreateInt("destroyed", DiskStressThreadGetFilesRemovedCount()),
-                          NULL);
+  fileInfo = WebSocketCreateFileInfoSection();
   
   object = JSONOutCreateObject(NULL);
   diskInfo = DiskInformationToJSON();

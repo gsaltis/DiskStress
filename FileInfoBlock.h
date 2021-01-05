@@ -19,6 +19,7 @@
  * Local Headers
  *****************************************************************************/
 #include "GeneralUtilities/String.h"
+#include "JSONOut.h"
 
 /*****************************************************************************!
  * Exported Macros
@@ -115,6 +116,10 @@ FileInfoBlockSetGetMap
 
 int
 FileInfoBlockSetGetSize
+();
+
+JSONOut*
+FileInfoBlockSetToJSON
 ();
 
 #endif /* _fileinfoblock_h_*/

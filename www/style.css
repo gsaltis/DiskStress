@@ -150,6 +150,77 @@
     font-size                           : 10pt;
 }
 
+#FileMapSection {
+    position                            : absolute;
+    left                                : calc(var(--DiskInfoSectionWidth) + 40px);
+    top                                 : 0px;
+    right                               : 0px;
+    bottom                              : 5px;
+    border                              : var(--GeneralBorder);
+    background                          : var(--GeneralBackgroundMedium);
+}
+
+#FileMapSectionBlocks {
+    position                            : absolute;
+    top                                 : 38px;
+    left                                : 0px;
+    right                               : 0px;
+    bottom                              : 0px;
+    overflow-y                          : auto;
+}
+
+.PushButton {
+    position                            : absolute;
+    height                              : 16px;
+    width                               : 60px;
+    border                              : var(--GeneralBorder);
+    border-radius                       : 4px;
+    font-family                         : Segoe UI;
+    font-size                           : 10pt;
+    font-weight                         : 500;
+    text-align                          : center;
+    line-height                         : 16px;
+    vertical-align                      : middle;
+    background                          : linear-gradient(#668 20%, #66F 50%, #668 90%);
+    cursor                              : hand;
+}
+
+#FileMapSectionBlocksButton {
+  left                                  : 3px;
+    top                                 : 20px;
+}
+
+.FileBlockUnUsed {
+     position                           : absolute;
+    width                               : 8px;
+    height                              : 8px;
+    background                          : #080;
+}
+
+.FileBlockUsed {
+    position                            : absolute;
+    width                               : 8px;
+    height                              : 8px;
+    background                          : #800;
+}
+
+.FileBlockEmpty {
+    position                            : absolute;
+    width                               : 8px;
+    height                              : 8px;
+    background                          : #880;
+}
+
+@keyframes UnusedToUsed {
+  from {
+    background                          : #C00;
+  }
+  to {
+    background                          : #0C0;
+  }
+
+}
+
 .DiskInfoLineGraph {
     position                            : absolute;
     height                              : calc(var(--DiskInfoLabelHeight) * 2 / 3);

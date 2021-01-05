@@ -26,6 +26,9 @@ var
 GetDiskInfoID;
 
 var
+GetDiskBlockID;
+
+var
 GetFileInfoID;
 
 var
@@ -126,6 +129,11 @@ WebSocketIFHandleResponse
       WebSocketIFHandleFileInfoPacket(InPacket.body.fileinfo);
       return;
     }
+		 
+    if ( InPacket.type == "blockinfo" ) {
+      WebSocketIFHandleBlockInfoPacket(InPacket.body.blockinfo);
+      return;
+    }
     if ( InPacket.type == "runtimeinfo" ) {
       WebSocketIFHandleRuntimeInfoPacket(InPacket.body.runtimeinfo);
       return;
@@ -145,6 +153,7 @@ WebSocketIFHandleResponseInit
   WebSocketIFHandleFileSizeInfoPacket(InPacket.filesizeinfo);
   clearTimeout(GetRuntimeInfoID);
   GetRuntimeInfoID = setTimeout(CBWebSocketIFGetRuntimeInfo, 10000);
+  CreateBlockGrid(InPacket.filesizeinfo.maxfilesint);
 }
 
 /*****************************************************************************!
@@ -199,8 +208,6 @@ WebSocketIFHandleFileInfoPacket
   clearTimeout(GetFileInfoID);
   GetFileInfoID = setTimeout(CBWebSocketIFGetFileInfo, 10000);
 }
-
-
 
 /*****************************************************************************!
  * Function : WebSocketIFHandleDiskInfoPacket
@@ -440,3 +447,97 @@ SetMessageClear
   SetMessageTimeoutID = 0;
 }
 
+/*****************************************************************************!
+ * Function : CreateBlockGrid
+ *****************************************************************************/
+function
+CreateBlockGrid
+(InInfoPacket)
+{
+  var                                   section;
+  var                                   width;
+  var                                   height; 
+  var                                   d, i, k, top, left, x, y;
+  var                                   p, pwidth, pheight;
+
+  section = document.getElementById("FileMapSectionBlocks");
+  p = section.parentElement;
+  pwidth = p.clientWidth; 
+  pheight = p.clientHeight;
+  x = section.offsetLeft;
+  y = section.offsetTop;
+
+  sectionWidth = pwidth - (x * 2 + 20);
+	section.style.width = sectionWidth;
+	console.log(x, y, pwidth, pheight);
+ 
+	k = Math.floor(sectionWidth / 10);
+
+  while (section.lastChild ) {
+	  section.removeChild(section.lastChild);
+  }
+
+  width = section.clientWidth;
+  height = section.clientHeight;
+  top = 2;
+	i = 0;
+  left = 2;
+  for (j = 0; j < InInfoPacket ; j++  ) {
+    if ( i == k ) {
+      left = 2;
+      top += 10;
+      i = 0;
+    }
+    d = document.createElement("div");
+    d.style.left = left + "px";
+    d.style.top =  top + "px";
+	  d.className = "FileBlockEmpty";
+	  d.id = "Block" + j;
+    section.appendChild(d);
+	  left += 10;
+		i++;
+  }
+}
+
+/*****************************************************************************!
+ * Function : WebSocketIFHandleBlockInfoPacket
+ *****************************************************************************/
+function
+WebSocketIFHandleBlockInfoPacket
+(InInfoPacket)
+{
+  var                                   blocks, block, j;
+
+  blocks = InInfoPacket.filemapinfo.map.split('');
+  for ( j = 0 ; j < InInfoPacket.filemapinfo.mapsize ; j++ ) {
+	block = document.getElementById("Block" + j);
+	if ( block ) {
+	  if ( blocks[j] == "0") {
+	    block.className = "FileBlockUnUsed";
+	  } else {
+        block.className = "FileBlockUsed";
+  	  }
+    }
+  }
+  GetBlockInfoID = setTimeout(CBWebSocketIFGetBlockInfo, 10000);
+}
+
+/*****************************************************************************!
+ *  Function : CBWebSocketIFGetBlockInfo 
+ *****************************************************************************/
+function
+CBWebSocketIFGetBlockInfo
+()
+{
+  WebSocketIFSendSimpleRequest("getblockinfo");
+}
+
+/*****************************************************************************!
+ * Function : CBFileMapSectionButtonPushed
+ *****************************************************************************/
+function
+CBFileMapSectionButtonPushed
+(InEvent)
+{
+  WebSocketIFSendSimpleRequest("getblockinfo");
+}

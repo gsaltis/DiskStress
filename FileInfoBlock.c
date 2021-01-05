@@ -415,3 +415,32 @@ FileInfoBlockSetGetSize
   return fileInfoBlockSetSize;
 }
 
+/*****************************************************************************!
+ * Function : FileInfoBlockSetToJSON 
+ *****************************************************************************/
+JSONOut*
+FileInfoBlockSetToJSON
+()
+{
+  JSONOut*						        jsonOut;
+  int                                   i;
+  string                                s;
+
+  jsonOut = JSONOutCreateObject("filemapinfo");
+
+  s = (string)GetMemory(fileInfoBlockSetSize + 1);
+
+  for ( i  = 0 ; i < fileInfoBlockSetSize ; i ++ ) {
+	if ( fileInfoBlockSet[i].filesize > 0 ) {
+	  s[i] = '1';
+	} else {
+	  s[i] = '0';
+	}
+  }
+  s[fileInfoBlockSetSize] = 0;
+
+  JSONOutObjectAddObject(jsonOut, JSONOutCreateString("map", s));
+  JSONOutObjectAddObject(jsonOut, JSONOutCreateInt("mapsize", fileInfoBlockSetSize));
+  return jsonOut;
+}
+
