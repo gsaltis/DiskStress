@@ -70,7 +70,7 @@ static uint64_t
 diskStressThreadFilesCreatedCount = 0;
 
 static int
-diskStressThreadSleepPeriod = 2;
+diskStressThreadSleepPeriod = 250000;
 
 static time_t
 diskStressThreadStartTime = 0;
@@ -169,7 +169,7 @@ DiskStressThread
 		diskStressThreadFilesRemovedCount++;
 	  }
 	}
-    sleep(diskStressThreadSleepPeriod);
+    usleep(diskStressThreadSleepPeriod);
     DiskInformationRefresh();
   }
 }

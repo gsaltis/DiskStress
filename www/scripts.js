@@ -32,6 +32,9 @@ var
 GetFileInfoID;
 
 var
+GetServerInfoID = 0;
+
+var
 GetRuntimeInfoID = 0;
 
 /*****************************************************************************!
@@ -138,7 +141,47 @@ WebSocketIFHandleResponse
       WebSocketIFHandleRuntimeInfoPacket(InPacket.body.runtimeinfo);
       return;
     }
+    if ( InPacket.type == "serverinfo" ) {
+      WebSocketIFHandleServerInfoPacket(InPacket.body.serverinfo);
+      return;
+    }
   }
+}
+
+/*****************************************************************************!
+ * Function : WebSocketIFHandleServerInfoPacket
+ *****************************************************************************/
+function 
+WebSocketIFHandleServerInfoPacket
+(InPacket)
+{
+  var s;
+  var elements = [
+    { "name" : "ServerStartTime", "field" : "starttime" },
+    { "name" : "ServerCurrentTime", "field" : "currenttime" }
+  ];
+  
+  for (i = 0; i < elements.length; i++) {
+    document.getElementById(elements[i].name).innerHTML = InPacket[elements[i].field];
+  }
+
+  s = "";
+  if ( InPacket.updays > 0 ) {
+    s = s + InPacket.updays + " Days ";
+  }
+  if ( InPacket.uphours > 0 || s != "" ) {
+    s = s + InPacket.uphours + " Hours ";
+  }
+  if ( InPacket.upminutes > 0 || s != "" ) {
+    s = s + InPacket.upminutes + " Minutes ";
+  }
+  if ( InPacket.uphours > 0 || s != "" ) {
+    s = s + InPacket.upseconds + " Seconds ";
+  }
+
+  document.getElementById("ServerElapsedTime").innerHTML = s;
+  clearTimeout(GetServerInfoID);
+  GetServerInfoID = setTimeout(CBWebSocketIFGetServerInfo, 10000);
 }
 
 /*****************************************************************************!
@@ -151,6 +194,7 @@ WebSocketIFHandleResponseInit
   WebSocketIFHandleDiskInfoPacket(InPacket.diskinfo);
   WebSocketIFHandleFileInfoPacket(InPacket.fileinfo);
   WebSocketIFHandleFileSizeInfoPacket(InPacket.filesizeinfo);
+  WebSocketIFHandleServerInfoPacket(InPacket.serverinfo);
   clearTimeout(GetRuntimeInfoID);
   GetRuntimeInfoID = setTimeout(CBWebSocketIFGetRuntimeInfo, 10000);
   CreateBlockGrid(InPacket.filesizeinfo.maxfilesint);
@@ -295,6 +339,16 @@ WebSocketIFHandleDiskInfoPacket
     document.getElementById(elements[i].name).innerHTML = InInfoPacket[elements[i].field];
   }
   GetDiskInfoID = setTimeout(CBWebSocketIFGetDiskInfo, 10000);
+}
+
+/*****************************************************************************!
+ * Function : CBWebSocketIFGetServerInfo
+ *****************************************************************************/
+function
+CBWebSocketIFGetServerInfo
+()
+{
+  WebSocketIFSendSimpleRequest("getserverinfo");
 }
 
 /*****************************************************************************!

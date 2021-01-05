@@ -141,6 +141,11 @@
     padding-right                       : 10px;
 }
 
+.DiskInfoValueWide {
+    width                               : calc(var(--DiskInfoLabelWidth) * 1.5) !important;
+    text-align                          : left !important;
+}
+
 .DiskInfoValue {
     left                                : var(--DiskInfoLabelWidth);
     text-align                          : right;
@@ -148,6 +153,7 @@
     padding-left                        : 10px;
     color                               : #008;
     font-size                           : 10pt;
+    overflow-x                          : visible;
 }
 
 #FileMapSection {

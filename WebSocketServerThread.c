@@ -138,6 +138,18 @@ JSONOut*
 WebSocketCreateFileInfoSection
 ();
 
+void
+WebSocketHandleGetServerInfo
+(struct mg_connection* InConnection, json_value* InJSONDoc);
+
+JSONOut*
+WebSocketCreateServerInfoSection
+();
+
+void
+WebSocketServerSendResponse
+(struct mg_connection * InConnection, JSONOut* InBody, json_value* InJSONDoc, string InResponseType);
+
 /*****************************************************************************!
  * Function : WebSocketServerThreadInit
  *****************************************************************************/
@@ -357,8 +369,71 @@ WebSocketHandleRequest
 	WebSocketHandleGetRuntimeInfo(InConnection, InJSONDoc);
   } else if ( StringEqual(type, "getblockinfo") ) {
 	WebSocketHandleGetBlockInfo(InConnection, InJSONDoc);
+  } else if ( StringEqual(type, "getserverinfo") ) {
+    WebSocketHandleGetServerInfo(InConnection, InJSONDoc);
   }
   FreeMemory(type);
+}
+
+/*****************************************************************************!
+ * Function : WebSocketHandleGetServerInfo
+ *****************************************************************************/
+void
+WebSocketHandleGetServerInfo
+(struct mg_connection* InConnection, json_value* InJSONDoc)
+{
+  JSONOut*                              body;
+  body = JSONOutCreateObject("body");
+  JSONOutObjectAddObject(body, WebSocketCreateServerInfoSection());
+  WebSocketServerSendResponse(InConnection, body, InJSONDoc, "serverinfo");
+}
+
+/*****************************************************************************!
+ * Function : WebSocketCreateServerInfoSection
+ *****************************************************************************/
+JSONOut*
+WebSocketCreateServerInfoSection
+()
+{
+  JSONOut*                              jsonout;
+  time_t                                currentTime;
+  time_t                                elapsedSeconds;
+  char                                  startTimeString[64];
+  char                                  currentTimeString[64];
+  int                                   n, days, hours, minutes, seconds;
+  struct tm*                            t;
+
+  currentTime = time(NULL);
+  elapsedSeconds = currentTime - WebSocketServerStartTime;
+
+  t = localtime(&WebSocketServerStartTime);
+  sprintf(startTimeString, "%02d/%02d/%04d %02d:%02d:%02d", t->tm_mon + 1,
+          t->tm_mday, t->tm_year + 1900, t->tm_hour, t->tm_min, t->tm_sec);
+
+  t = localtime(&currentTime);
+  sprintf(currentTimeString, "%02d/%02d/%04d %02d:%02d:%02d", t->tm_mon + 1,
+          t->tm_mday, t->tm_year + 1900, t->tm_hour, t->tm_min, t->tm_sec);
+
+  days = elapsedSeconds / 86400;
+  n = elapsedSeconds % 86400;
+  hours = n / 3600;
+  n = n % 3600;
+  minutes = n / 60; 
+  seconds = n % 60;
+
+  jsonout = JSONOutCreateObject("serverinfo");
+  
+  JSONOutObjectAddObjects(jsonout,
+                          JSONOutCreateString("starttime", startTimeString),
+                          JSONOutCreateString("currenttime", currentTimeString),
+                          JSONOutCreateInt("updays", days),
+                          JSONOutCreateInt("uphours", hours),
+                          JSONOutCreateInt("upminutes", minutes),
+                          JSONOutCreateInt("upseconds", seconds),
+                          JSONOutCreateInt("elapsedtime", elapsedSeconds),
+                          NULL);
+  return jsonout;
+
 }
 
 /*****************************************************************************!
@@ -369,8 +444,6 @@ WebSocketHandleGetBlockInfo
 (struct mg_connection* InConnection, json_value* InJSONDoc)
 {
   JSONOut*                              body;
-  string                                s;
-  JSONOut*                              object;
   JSONOut*                              blockInfo;
 
   blockInfo = JSONOutCreateObject("blockinfo");
@@ -378,16 +451,29 @@ WebSocketHandleGetBlockInfo
 				  		  FileInfoBlockSetToJSON(),
                           NULL);
   
-  object = JSONOutCreateObject(NULL);
   body = JSONOutCreateObject("body");
   JSONOutObjectAddObject(body, blockInfo);
+  WebSocketServerSendResponse(InConnection, body, InJSONDoc, "blockinfo");
+}
+
+/*****************************************************************************!
+ * Function : WebSocketServerSendResponse
+ *****************************************************************************/
+void
+WebSocketServerSendResponse
+(struct mg_connection * InConnection, JSONOut* InBody, json_value* InJSONDoc, string InResponseType)
+{
+  string                                s;
+  JSONOut*                              object;
+
+  object = JSONOutCreateObject(NULL);
   JSONOutObjectAddObjects(object,
                           JSONOutCreateString("packettype", "response"),
                           JSONOutCreateInt("packetid", JSONIFGetInt(InJSONDoc, "packetid")),
                           JSONOutCreateInt("time", (int)time(NULL)),
-                          JSONOutCreateString("type", "blockinfo"),
+                          JSONOutCreateString("type", InResponseType),
                           JSONOutCreateString("status", "OK"),
-                          body,
+                          InBody,
                           NULL);
   
   s = JSONOutToString(object, 0);
@@ -499,6 +585,7 @@ WebSocketHandleInit
   JSONOut*                              object;
   JSONOut*                              fileInfo;
   JSONOut*								sizeInfo;
+  JSONOut*                              serverInfo;
   char                                  s1[32], s2[32];
 
   sizeInfo = JSONOutCreateObject("filesizeinfo");
@@ -508,14 +595,15 @@ WebSocketHandleInit
 						  JSONOutCreateString("maxfilesize", ConvertLongLongToCommaString(DiskStressThreadGetMaxFileSize(), s2)),
 						  NULL);
 
-  fileInfo = WebSocketCreateFileInfoSection();
-  
   object = JSONOutCreateObject(NULL);
+  fileInfo = WebSocketCreateFileInfoSection();
+  serverInfo = WebSocketCreateServerInfoSection();
   diskInfo = DiskInformationToJSON();
   body = JSONOutCreateObject("body");
   JSONOutObjectAddObject(body, diskInfo);
   JSONOutObjectAddObject(body, fileInfo);
   JSONOutObjectAddObject(body, sizeInfo);
+  JSONOutObjectAddObject(body, serverInfo);
   JSONOutObjectAddObjects(object,
                           JSONOutCreateString("packettype", "response"),
                           JSONOutCreateInt("packetid", JSONIFGetInt(InJSONDoc, "packetid")),
