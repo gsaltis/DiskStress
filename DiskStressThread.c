@@ -34,6 +34,17 @@
  *****************************************************************************/
 
 /*****************************************************************************!
+ * Local Type : DiskStressUsageTrend 
+ *****************************************************************************/
+enum _DiskStressUsageTrend
+{
+  DISK_STRESS_TREND_NONE,
+  DISK_STRESS_TREND_INCREASE,
+  DISK_STRESS_TREND_DECREASE
+};
+typedef enum _DiskStressUsageTrend DiskStressUsageTrend;
+
+/*****************************************************************************!
  * Local Data
  *****************************************************************************/
 static string
@@ -78,6 +89,15 @@ diskStressThreadSleepPeriodMin = 10000;
 static time_t
 diskStressThreadStartTime = 0;
 
+int
+diskStressHighUsagePercent = 98;
+
+int
+diskStressLowUsagePercent = 4;
+
+DiskStressUsageTrend
+diskStressTrend = DISK_STRESS_TREND_NONE;
+
 /*****************************************************************************!
  * Local Functions
  *****************************************************************************/
@@ -98,6 +118,7 @@ DiskStressThreadInit
 ()
 {
   diskStressFileHead = NULL;
+  diskStressTrend = DISK_STRESS_TREND_NONE;
   diskStressDirectory = StringCopy(diskStressDirectoryDefault);
 }
 
@@ -127,6 +148,9 @@ DiskStressThread
   long long                             filesize;
   FileInfoBlock*                        infoBlock;
   int                                   index;
+  int                                   diskTotalFileSize;
+  int                                   diskCurrentFileSize;
+  int                                   diskUsedPercent;
 
   diskStressThreadAvailableBytes = DiskInformationGetAvailableBytes();
 
@@ -157,16 +181,30 @@ DiskStressThread
 
   filesize = diskStressMaxFileSize;
   diskStressThreadStartTime = time(NULL);
+  diskStressTrend = DISK_STRESS_TREND_INCREASE;
+  diskTotalFileSize = FileInfoBlockSetGetSize();
   while ( true ) {
+    diskCurrentFileSize = FileInfoBlockGetCount();
+    diskUsedPercent     = (int)(diskCurrentFileSize * 100 / diskTotalFileSize);
+    if ( diskStressTrend == DISK_STRESS_TREND_INCREASE ) {
+      if ( diskUsedPercent >= diskStressHighUsagePercent ) {
+        diskStressTrend = DISK_STRESS_TREND_DECREASE;
+      }
+    } else {
+      if ( diskUsedPercent <= diskStressLowUsagePercent ) {
+        diskStressTrend = DISK_STRESS_TREND_INCREASE;
+      }
+    }
 	index = rand();
 	index %= diskStressThreadMaxFiles;
 	infoBlock = FileInfoBlockGetBlock(index);
+
 	if ( infoBlock ) {
-	  if ( infoBlock->filesize == 0 ) {
+	  if ( infoBlock->filesize == 0 && diskStressTrend == DISK_STRESS_TREND_INCREASE ) {
 		FileInfoBlockSetBlock(infoBlock, filesize);
 		FileInfoBlockCreateFile(infoBlock, diskStressDirectory);
 		diskStressThreadFilesCreatedCount++;
-	  } else {
+	  } else if ( diskStressTrend == DISK_STRESS_TREND_DECREASE ) {
 		FileInfoBlockRemoveFile(infoBlock, diskStressDirectory);
 		FileInfoBlockClearBlock(infoBlock);
 		diskStressThreadFilesRemovedCount++;

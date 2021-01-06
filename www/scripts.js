@@ -178,7 +178,7 @@ WebSocketIFHandleServerInfoPacket
   if ( InPacket.upminutes > 0 || s != "" ) {
     s = s + InPacket.upminutes + " Minutes ";
   }
-  if ( InPacket.uphours > 0 || s != "" ) {
+  if ( InPacket.upseconds > 0 || s != "" ) {
     s = s + InPacket.upseconds + " Seconds ";
   }
 

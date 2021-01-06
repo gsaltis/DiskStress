@@ -101,6 +101,7 @@ DiskInformationToJSON
 {
   JSONOut*                              jsonOut;
   char                                  s1[32];
+  uint64_t                              n;
 
   jsonOut = JSONOutCreateObject("diskinfo");
   JSONOutObjectAddObject(jsonOut, JSONOutCreateLongLong("totalbytes", DiskInfoRoot.totalBytes));
@@ -115,7 +116,10 @@ DiskInformationToJSON
   JSONOutObjectAddObject(jsonOut, JSONOutCreateLongLong("usedbytes", DiskInfoRoot.totalBytes - DiskInfoRoot.freeBytes));
   JSONOutObjectAddObject(jsonOut, JSONOutCreateLongLong("usedinodes", DiskInfoRoot.totalInodes - DiskInfoRoot.freeInodes));
   JSONOutObjectAddObject(jsonOut, JSONOutCreateLongLong("usedblocks", DiskInfoRoot.totalBlocks - DiskInfoRoot.freeBlocks));
-  
+
+  n = (int)DiskInfoRoot.totalBlocks - DiskInfoRoot.freeBlocks;
+  n = (int)((n * 100) / DiskInfoRoot.totalBlocks);
+  JSONOutObjectAddObject(jsonOut, JSONOutCreateInt("usedpercent", n));
   JSONOutObjectAddObject(jsonOut, JSONOutCreateString("totalbytesstring", ConvertLongLongToCommaString(DiskInfoRoot.totalBytes, s1)));
   JSONOutObjectAddObject(jsonOut, JSONOutCreateString("freebytesstring", ConvertLongLongToCommaString(DiskInfoRoot.freeBytes , s1)));
   JSONOutObjectAddObject(jsonOut, JSONOutCreateString("totalblocksstring", ConvertLongLongToCommaString(DiskInfoRoot.totalBlocks, s1)));
@@ -140,3 +144,24 @@ DiskInformationGetAvailableBytes
 {
   return DiskInfoRoot.freeBytes;
 }
+
+/*****************************************************************************!
+ * Function : DiskInformationGetTotalBytes
+ *****************************************************************************/
+uint64_t
+DiskInformationGetTotalBytes
+()
+{
+  return DiskInfoRoot.totalBytes;
+}
+
+/*****************************************************************************!
+ * Function : DiskInformationGetTotalBytes
+ *****************************************************************************/
+uint64_t
+DiskInformationGetUsedBytes
+()
+{
+  return DiskInfoRoot.totalBytes - DiskInfoRoot.freeBytes;
+}
+

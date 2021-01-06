@@ -63,4 +63,12 @@ uint64_t
 DiskInformationGetAvailableBytes
 ();
 
+uint64_t
+DiskInformationGetTotalBytes
+();
+
+uint64_t
+DiskInformationGetUsedBytes
+();
+
 #endif // _diskinformation_h_
