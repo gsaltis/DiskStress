@@ -90,13 +90,22 @@ static time_t
 diskStressThreadStartTime = 0;
 
 int
-diskStressHighUsagePercent = 98;
+diskStressHighUsagePercent = 0;
 
 int
-diskStressLowUsagePercent = 4;
+diskStressHighUsagePercentDefault = 98;
+
+int
+diskStressLowUsagePercent = 0;
+
+int
+diskStressLowUsagePercentDefault = 4;
 
 DiskStressUsageTrend
 diskStressTrend = DISK_STRESS_TREND_NONE;
+
+int
+diskStressCycleCount = 0;
 
 /*****************************************************************************!
  * Local Functions
@@ -117,6 +126,8 @@ void
 DiskStressThreadInit
 ()
 {
+  diskStressHighUsagePercent = diskStressHighUsagePercentDefault;
+  diskStressLowUsagePercent  = diskStressLowUsagePercentDefault;
   diskStressFileHead = NULL;
   diskStressTrend = DISK_STRESS_TREND_NONE;
   diskStressDirectory = StringCopy(diskStressDirectoryDefault);
@@ -167,16 +178,16 @@ DiskStressThread
   LogAppend("  Max File Size         : %lld", diskStressMaxFileSize);
 
   printf("%sDisk Stress Thread       :%s started%s\n"
-	     "  %sFiles Directory        : %s%s%s\n"
-		 "  %sAvailable Bytes        : %s%llu%s\n" 
-		 "  %sMax Files              : %s%llu%s\n"
-		 "  %sMax File Size          : %s%llu%s\n",
+       "  %sFiles Directory        : %s%s%s\n"
+     "  %sAvailable Bytes        : %s%llu%s\n" 
+     "  %sMax Files              : %s%llu%s\n"
+     "  %sMax File Size          : %s%llu%s\n",
 
-		 ColorGreen, ColorYellow, ColorReset, 
-		 ColorCyan, ColorYellow, diskStressDirectory, ColorReset,
-		 ColorCyan, ColorYellow, diskStressThreadAvailableBytes, ColorReset,
-		 ColorCyan, ColorYellow, diskStressThreadMaxFiles, ColorReset,
-		 ColorCyan, ColorYellow, diskStressMaxFileSize, ColorReset);
+     ColorGreen, ColorYellow, ColorReset, 
+     ColorCyan, ColorYellow, diskStressDirectory, ColorReset,
+     ColorCyan, ColorYellow, diskStressThreadAvailableBytes, ColorReset,
+     ColorCyan, ColorYellow, diskStressThreadMaxFiles, ColorReset,
+     ColorCyan, ColorYellow, diskStressMaxFileSize, ColorReset);
   UserInputServerThreadStart();
 
   filesize = diskStressMaxFileSize;
@@ -193,23 +204,24 @@ DiskStressThread
     } else {
       if ( diskUsedPercent <= diskStressLowUsagePercent ) {
         diskStressTrend = DISK_STRESS_TREND_INCREASE;
+        diskStressCycleCount++;
       }
     }
-	index = rand();
-	index %= diskStressThreadMaxFiles;
-	infoBlock = FileInfoBlockGetBlock(index);
+  index = rand();
+  index %= diskStressThreadMaxFiles;
+  infoBlock = FileInfoBlockGetBlock(index);
 
-	if ( infoBlock ) {
-	  if ( infoBlock->filesize == 0 && diskStressTrend == DISK_STRESS_TREND_INCREASE ) {
-		FileInfoBlockSetBlock(infoBlock, filesize);
-		FileInfoBlockCreateFile(infoBlock, diskStressDirectory);
-		diskStressThreadFilesCreatedCount++;
-	  } else if ( diskStressTrend == DISK_STRESS_TREND_DECREASE ) {
-		FileInfoBlockRemoveFile(infoBlock, diskStressDirectory);
-		FileInfoBlockClearBlock(infoBlock);
-		diskStressThreadFilesRemovedCount++;
-	  }
-	}
+  if ( infoBlock ) {
+    if ( infoBlock->filesize == 0 && diskStressTrend == DISK_STRESS_TREND_INCREASE ) {
+    FileInfoBlockSetBlock(infoBlock, filesize);
+    FileInfoBlockCreateFile(infoBlock, diskStressDirectory);
+    diskStressThreadFilesCreatedCount++;
+    } else if ( diskStressTrend == DISK_STRESS_TREND_DECREASE ) {
+    FileInfoBlockRemoveFile(infoBlock, diskStressDirectory);
+    FileInfoBlockClearBlock(infoBlock);
+    diskStressThreadFilesRemovedCount++;
+    }
+  }
     usleep(diskStressThreadSleepPeriod);
     DiskInformationRefresh();
   }
@@ -298,31 +310,31 @@ void
 DiskStressThreadCleanFiles
 ()
 {
-  DIR*	                                dir;
-  struct dirent*						entry;
-  string								fullname;
-  int 									n;
+  DIR*                                  dir;
+  struct dirent*            entry;
+  string                fullname;
+  int                   n;
 
   dir = opendir(diskStressDirectory);
   if ( NULL == dir ) {
-	return;
+  return;
   }
 
   n = 0;
   for ( entry = readdir(dir) ; entry ; entry = readdir(dir) ) {
-	if ( StringEqualsOneOf(entry->d_name, ".", "..", NULL) ) {
-	  continue;
-	}
-	fullname = StringConcat(diskStressDirectory, entry->d_name);
+  if ( StringEqualsOneOf(entry->d_name, ".", "..", NULL) ) {
+    continue;
+  }
+  fullname = StringConcat(diskStressDirectory, entry->d_name);
     if ( unlink(fullname) ) {
-	  fprintf(stderr, "%sCould remove file %s%s : %s%s%s\n", ColorRed, ColorBrightRed, fullname, ColorRed, strerror(errno), ColorReset);
-	  exit(EXIT_FAILURE);
-	}
-	FreeMemory(fullname);
-	n++;
+    fprintf(stderr, "%sCould remove file %s%s : %s%s%s\n", ColorRed, ColorBrightRed, fullname, ColorRed, strerror(errno), ColorReset);
+    exit(EXIT_FAILURE);
+  }
+  FreeMemory(fullname);
+  n++;
   }
   if ( n > 1 ) {
-	printf("%sFiles removed            : %s%d%s\n", ColorGreen, ColorYellow, n, ColorReset);
+  printf("%sFiles removed            : %s%d%s\n", ColorGreen, ColorYellow, n, ColorReset);
   }
 }
 
@@ -334,7 +346,7 @@ DiskStressThreadSetMaxFiles
 (uint64_t InMaxFiles)
 {
   if ( InMaxFiles == 0 ) {
-	return;
+  return;
   }
 
   diskStressThreadMaxFiles = InMaxFiles;
@@ -368,7 +380,7 @@ DiskStressThreadSetMaxFileSize
 (uint64_t InMaxFileSize)
 {
   if ( InMaxFileSize == 0 ) {
-	return;
+  return;
   }
 
   diskStressMaxFileSize = InMaxFileSize;
@@ -445,5 +457,76 @@ DiskStressThreadGetSleepPeriodMin
 ()
 {
   return diskStressThreadSleepPeriodMin;
+}
+
+/*****************************************************************************!
+ * Function : DiskStressThreadStressInfoToJSON
+ *****************************************************************************/
+JSONOut*
+DiskStressThreadStressInfoToJSON
+()
+{
+  JSONOut*                              object;
+  int                                   diskTotalFileSize, diskCurrentFileSize;
+  int                                   diskUsedPercent;
+
+  diskTotalFileSize = FileInfoBlockSetGetSize();
+  diskCurrentFileSize = FileInfoBlockGetCount();
+  diskUsedPercent     = (int)(diskCurrentFileSize * 100 / diskTotalFileSize);
+ 
+  object = JSONOutCreateObject("stressinfo");
+  JSONOutObjectAddObjects(object,
+                          JSONOutCreateInt("highpercent", diskStressHighUsagePercent),
+                          JSONOutCreateInt("lowpercent",  diskStressLowUsagePercent),
+                          JSONOutCreateInt("currentpercent", diskUsedPercent),
+                          JSONOutCreateInt("sleepperiod", diskStressThreadSleepPeriod),
+                          JSONOutCreateInt("cycle", diskStressCycleCount),
+                          JSONOutCreateString("process", diskStressTrend == DISK_STRESS_TREND_INCREASE ? "Creation" : "Removing"),
+                          NULL);
+  return object;
+}
+
+/*****************************************************************************!
+ * Function : DiskStressThreadGetHighPercent 
+ *****************************************************************************/
+int
+DiskStressThreadGetHighPercent
+()
+{
+  return diskStressHighUsagePercent;
+}
+
+/*****************************************************************************!
+ * Function : DiskStressThreadGetLowPercent
+ *****************************************************************************/
+int
+DiskStressThreadGetLowPercent
+()
+{
+  return diskStressLowUsagePercent;
+}
+
+/*****************************************************************************!
+ * Function : DiskStressThreadSetLowPercent
+ *****************************************************************************/
+void
+DiskStressThreadSetLowPercent
+(int InLowPercent)
+{
+  if ( InLowPercent > 0 && InLowPercent <= 100 ) {
+    diskStressLowUsagePercent = InLowPercent;
+  }
+}
+
+/*****************************************************************************!
+ * Function : DiskStressThreadSetHighPercent
+ *****************************************************************************/
+void
+DiskStressThreadSetHighPercent
+(int InHighPercent)
+{
+  if ( InHighPercent > 0 && InHighPercent <= 100 ) {
+    diskStressHighUsagePercent = InHighPercent;
+  }
 }
 

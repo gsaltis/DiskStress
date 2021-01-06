@@ -26,7 +26,7 @@ test -f $DAEMON || exit 0
 
 start() {
   log_daemon_msg "Starting Disk Stress Service" "diskstress"
-  start_daemon -p $PIDFILE $DAEMON -l /home/pi/DiskStressLog.txt -d /home/pi/Source/DiskStress/DiskStressFiles/ -w /home/pi/Source/DiskStress/www
+  start_daemon -p $PIDFILE $DAEMON -l /home/pi/DiskStressLog.txt -d /home/pi/Source/DiskStress/DiskStressFiles/ -w /home/pi/Source/DiskStress/www -t 100000
   log_end_msg $?
 }
 

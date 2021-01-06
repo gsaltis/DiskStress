@@ -32,7 +32,6 @@
     top                                 : 110px;
     bottom                              : 40px;
     background                          : #FBFCFC;
-    border-top                          : var(--GeneralBorder);
 }
 
 #Heading {
@@ -78,35 +77,23 @@
     border                              : var(--GeneralBorder);
 }
  
-#TestSection {
-    top                                 : calc(var(--DiskInfoLabelHeight) * 13.5 + 20px);
-    height                              : calc(var(--DiskInfoLabelHeight) * 5);
+#StressSection {
+    top                                 : calc(var(--DiskInfoLabelHeight) * 11); 
+    height                              : calc(var(--DiskInfoLabelHeight) * 8);
 }
 
-#TestButton {
-    top                                 : calc(var(--HeaderHeightSmall) + 5px);
-    left                                : 5px;
-}
-
-#TestColorSection {
+#StressTextSection {
     position                            : absolute;
-    top                                 : 50px;
-    left                                : 5px;
-    right                               : 5px;
-    bottom                              : 5px;
-    background                          : #008;
-    border-radius                       : 40px;
-    transition                          : background 1s ease;
+    top                                 : var(--HeaderHeightSmall);
+    left                                : 0px;
+    right                               : 0px;
+    bottom                              : 0px;
 }
   
-.TestColorSectionActive {
-    background                          : #800 !important;
-}
-
 #DiskInfoSection {
     position                            : absolute;
     left                                : 0px;
-    top                                 : 220px;
+    top                                 : calc(var(--DiskInfoLabelHeight) * 20);
     width                               : var(--DiskInfoSectionWidth);
     height                              : calc(var(--DiskInfoLabelHeight) * 13.5);
     border                              : var(--GeneralBorder);
@@ -192,9 +179,9 @@
 #FileMapSection {
     position                            : absolute;
     left                                : calc(var(--DiskInfoSectionWidth) + 40px);
-    top                                 : 0px;
-    right                               : 0px;
-    bottom                              : 5px;
+    top                                 : 110px;
+    right                               : 10px;
+    bottom                              : 35px;
     border                              : var(--GeneralBorder);
     background                          : var(--GeneralBackgroundMedium);
 }

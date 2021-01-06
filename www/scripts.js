@@ -38,7 +38,28 @@ var
 GetRuntimeInfoID = 0;
 
 var
+GetStressInfoID = 0;
+
+var
 FileBlockSize = 12;
+
+var
+StressInfoReadPeriod = 5000;
+
+var
+FileInfoReadPeriod = 3000;
+
+var
+RuntimeInfoReadPeriod = 10000;
+
+var
+ServerInfoReadPeriod = 10000;
+
+var
+DiskInfoReadPeriod = 10000;
+
+var
+BlockInfoReadPeriod = 3000;
 
 /*****************************************************************************!
  * Function : CBSystemInitialize
@@ -144,6 +165,11 @@ WebSocketIFHandleResponse
       WebSocketIFHandleRuntimeInfoPacket(InPacket.body.runtimeinfo);
       return;
     }
+    if ( InPacket.type == "stressinfo" ) {
+      WebSocketIFHandleStressInfoPacket(InPacket.body.stressinfo);
+      return;
+    }
+
     if ( InPacket.type == "serverinfo" ) {
       WebSocketIFHandleServerInfoPacket(InPacket.body.serverinfo);
       return;
@@ -184,7 +210,7 @@ WebSocketIFHandleServerInfoPacket
 
   document.getElementById("ServerElapsedTime").innerHTML = s;
   clearTimeout(GetServerInfoID);
-  GetServerInfoID = setTimeout(CBWebSocketIFGetServerInfo, 10000);
+  GetServerInfoID = setTimeout(CBWebSocketIFGetServerInfo, ServerInfoReadPeriod);
 }
 
 /*****************************************************************************!
@@ -198,9 +224,44 @@ WebSocketIFHandleResponseInit
   WebSocketIFHandleFileInfoPacket(InPacket.fileinfo);
   WebSocketIFHandleFileSizeInfoPacket(InPacket.filesizeinfo);
   WebSocketIFHandleServerInfoPacket(InPacket.serverinfo);
+  WebSocketIFHandleStressInfoPacket(InPacket.stressinfo);
   clearTimeout(GetRuntimeInfoID);
-  GetRuntimeInfoID = setTimeout(CBWebSocketIFGetRuntimeInfo, 10000);
+  GetRuntimeInfoID = setTimeout(CBWebSocketIFGetRuntimeInfo, RuntimeInfoReadPeriod);
   CreateBlockGrid(InPacket.filesizeinfo.maxfilesint);
+}
+
+/*****************************************************************************!
+ * Function : CBFileMapSectionButtonPushed
+ *****************************************************************************/
+function
+CBFileMapSectionButtonPushed
+()
+{
+  WebSocketIFSendSimpleRequest("getblockinfo");
+}
+
+/*****************************************************************************!
+ * Function : WebSocketIFHandleStressInfoPacket
+ *****************************************************************************/
+function
+WebSocketIFHandleStressInfoPacket
+(InInfoPacket)
+{
+  var elements = [
+    { "name" : "StressLowPercent",  "field" : "lowpercent" },
+    { "name" : "StressHighPercent", "field" : "highpercent" },
+    { "name" : "StressCurrentPercent", "field" : "currentpercent" },
+    { "name" : "StressSleepPeriod", "field" : "sleepperiod" },
+    { "name" : "StressCycle", "field" : "cycle" },
+    { "name" : "StressProcess", "field" : "process" }
+  ];
+  
+  for (i = 0; i < elements.length; i++) {
+    document.getElementById(elements[i].name).innerHTML = InInfoPacket[elements[i].field];
+  }
+
+  clearTimeout(GetStressInfoID);
+  GetStressInfoID = setTimeout(CBWebSocketIFGetStressInfo, StressInfoReadPeriod);
 }
 
 /*****************************************************************************!
@@ -220,7 +281,7 @@ WebSocketIFHandleFileSizeInfoPacket
   }
 
   clearTimeout(GetFileInfoID);
-  GetFileInfoID = setTimeout(CBWebSocketIFGetFileInfo, 10000);
+  GetFileInfoID = setTimeout(CBWebSocketIFGetFileInfo, FileInfoReadPeriod);
 }
 
 /*****************************************************************************!
@@ -231,7 +292,7 @@ WebSocketIFHandleRuntimeInfoPacket
 (InInfoPacket)
 {
   clearTimeout(GetRuntimeInfoID);
-  GetRuntimeInfoID = setTimeout(CBWebSocketIFGetRuntimeInfo, 10000);
+  GetRuntimeInfoID = setTimeout(CBWebSocketIFGetRuntimeInfo, RuntimeInfoReadPeriod);
 }
 
 /*****************************************************************************!
@@ -253,7 +314,7 @@ WebSocketIFHandleFileInfoPacket
   }
 
   clearTimeout(GetFileInfoID);
-  GetFileInfoID = setTimeout(CBWebSocketIFGetFileInfo, 10000);
+  GetFileInfoID = setTimeout(CBWebSocketIFGetFileInfo, FileInfoReadPeriod);
 }
 
 /*****************************************************************************!
@@ -341,7 +402,7 @@ WebSocketIFHandleDiskInfoPacket
   for (i = 0; i < elements.length; i++) {
     document.getElementById(elements[i].name).innerHTML = InInfoPacket[elements[i].field];
   }
-  GetDiskInfoID = setTimeout(CBWebSocketIFGetDiskInfo, 10000);
+  GetDiskInfoID = setTimeout(CBWebSocketIFGetDiskInfo, DiskInfoReadPeriod);
 }
 
 /*****************************************************************************!
@@ -576,7 +637,7 @@ WebSocketIFHandleBlockInfoPacket
   	  }
     }
   }
-  GetBlockInfoID = setTimeout(CBWebSocketIFGetBlockInfo, 3000);
+  GetBlockInfoID = setTimeout(CBWebSocketIFGetBlockInfo, BlockInfoReadPeriod);
 }
 
 /*****************************************************************************!
@@ -590,27 +651,12 @@ CBWebSocketIFGetBlockInfo
 }
 
 /*****************************************************************************!
- * Function : CBFileMapSectionButtonPushed
+ * Function : CBWebSocketIFGetStressInfo
  *****************************************************************************/
 function
-CBFileMapSectionButtonPushed
+CBWebSocketIFGetStressInfo
 (InEvent)
 {
-  WebSocketIFSendSimpleRequest("getblockinfo");
-}
-
-/*****************************************************************************!
- * Function : CBChangeColorTest
- *****************************************************************************/
-function
-CBChangeTestColor
-()
-{
-  var s = document.getElementById("TestColorSection");
-  if ( s.className == "TestColorSectionActive" ) {
-    s.className = "";
-  } else {
-    s.className = "TestColorSectionActive";
-  }
+  WebSocketIFSendSimpleRequest("getstressinfo");
 }
 

@@ -91,12 +91,17 @@ MainProcessCommandLine
   int									n;
   bool									b;
 
+  //! Process the help request before all others
   for (i = 1; i < argc; i++) {
     command = argv[i];
     if ( StringEqualsOneOf(command, "-h", "--help", NULL) ) {
       MainDisplayHelp();
-      exit(EXIT_FAILURE);
+      exit(EXIT_SUCCESS);
     }
+  }
+  
+  for (i = 1; i < argc; i++) {
+    command = argv[i];
 
 	if ( StringEqualsOneOf(command, "-w", "--webdir", NULL) ) {
       i++;
@@ -182,6 +187,41 @@ MainProcessCommandLine
 	  continue;
 	}
 
+    if ( StringEqualsOneOf(command, "-o", "--low", NULL) ) {
+      i++;
+      if ( i == argc ) {
+        fprintf(stderr, "%s\"%s\"%s %srequires an integer%s\n", ColorRed, command, ColorReset, ColorYellow, ColorReset);
+        MainDisplayHelp();
+        exit(EXIT_FAILURE);
+      }
+      n = GetIntValueFromString(&b, argv[i]);
+	  if ( !b ) {
+		fprintf(stderr, "%s\"%s\"%s  %sdoes not appear to be an integer%s\n",
+						ColorRed, argv[i], ColorReset, ColorYellow, ColorReset);
+		MainDisplayHelp();
+		exit(EXIT_FAILURE);
+	  }
+      DiskStressThreadSetLowPercent(n);
+      continue;
+    }
+
+    if ( StringEqualsOneOf(command, "-i", "--high", NULL) ) {
+      i++;
+      if ( i == argc ) {
+        fprintf(stderr, "%s\"%s\"%s %srequires an integer%s\n", ColorRed, command, ColorReset, ColorYellow, ColorReset);
+        MainDisplayHelp();
+        exit(EXIT_FAILURE);
+      }
+      n = GetIntValueFromString(&b, argv[i]);
+	  if ( !b ) {
+		fprintf(stderr, "%s\"%s\"%s  %sdoes not appear to be an integer%s\n",
+						ColorRed, argv[i], ColorReset, ColorYellow, ColorReset);
+		MainDisplayHelp();
+		exit(EXIT_FAILURE);
+	  }
+      DiskStressThreadSetHighPercent(n);
+      continue;
+    }
 
     if ( StringEqualsOneOf(command, "-d", "--directory", NULL) ) {
       i++;
@@ -209,16 +249,24 @@ MainDisplayHelp
   fprintf(stdout, "Usage : %s {options}\n", mainProgramName);
   fprintf(stdout, "        %s-h, --help      %s  : %sDisplay this message%s\n", 
 				  ColorGreen, ColorReset, ColorYellow, ColorReset);
+
+  fprintf(stdout, "        %s-l, --logfile %s  : %sSpecify the log file name%s\n", 
+				  ColorGreen, ColorReset, ColorYellow, ColorReset);
   fprintf(stdout, "        %s-d, --directory %s  : %sSpecify the file base directory%s\n", 
 				  ColorGreen, ColorReset, ColorYellow, ColorReset);
+
+
   fprintf(stdout, "        %s-w, --webdir    %s  : %sSpecify the www files base directory%s\n", 
 		  		  ColorGreen, ColorReset, ColorYellow, ColorReset);
   fprintf(stdout, "        %s-f, --filesmax  %s  : %sSpecify the maximum number of files create%s\n",
 		          ColorGreen, ColorReset, ColorYellow, ColorReset);
   fprintf(stdout, "        %s-m, --maxfilesize %s: %sSpecify the maximum size of files created%s\n",
 		          ColorGreen, ColorReset, ColorYellow, ColorReset);
-  fprintf(stdout, "        %s-t, --timesleep   %s: %sSpecify the number of microseconds to wait between file operations (default %d)%s\n",
+  fprintf(stdout, "        %s-t, --timesleep   %s: %sSpecifies the number of milliseconds sleep between file creates and destroys (default %d)%s\n",
 		          ColorGreen, ColorReset, ColorYellow, DiskStressThreadGetSleepPeriod(), ColorReset);
+  fprintf(stdout, "        %s-o, --low         %s: %sSpecify the low file percentage (default %d)%s\n",
+		          ColorGreen, ColorReset, ColorYellow, DiskStressThreadGetLowPercent(), ColorReset);
 
-      
+  fprintf(stdout, "        %s-i, --high        %s: %sSpecify the high file percentage (default %d)%s\n",
+		          ColorGreen, ColorReset, ColorYellow, DiskStressThreadGetHighPercent(), ColorReset);
 }

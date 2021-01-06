@@ -17,6 +17,7 @@
  * Local Headers
  *****************************************************************************/
 #include "GeneralUtilities/String.h"
+#include "JSONOut.h"
 
 /*****************************************************************************!
  * Exported Macros
@@ -104,5 +105,25 @@ DiskStressThreadGetSleepPeriodMin
 int
 DiskStressThreadGetSleepPeriod
 ();
+
+JSONOut*
+DiskStressThreadStressInfoToJSON
+();
+
+int
+DiskStressThreadGetHighPercent
+();
+
+int
+DiskStressThreadGetLowPercent
+();
+
+void
+DiskStressThreadSetLowPercent
+(int InLowPercent);
+
+void
+DiskStressThreadSetHighPercent
+(int InHighPercent);
 
 #endif // _diskstressthread_h_
