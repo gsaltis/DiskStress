@@ -92,7 +92,7 @@ FileInfoBlockSetCreate
 
 void
 FileInfoBlockRemoveFile
-(FileInfoBlock* InBlock);
+(FileInfoBlock* InBlock, string InDirectory);
 
 void
 FileInfoBlockCreateFile

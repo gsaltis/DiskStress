@@ -13,6 +13,7 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+#include <errno.h>
 
 /*****************************************************************************!
  * Local Headers
@@ -327,7 +328,7 @@ FileInfoBlockCreateFile
 	return;
   }
 
-  sprintf(filename, "%s%d", fileInfoBlockPrefix, InBlock->index);
+  sprintf(filename, "%s%08d", fileInfoBlockPrefix, InBlock->index);
   s = StringConcat(InDirectory, filename);
   file = fopen(s, "wb");
   if ( NULL == file ) {
@@ -345,9 +346,11 @@ FileInfoBlockCreateFile
  *****************************************************************************/
 void
 FileInfoBlockRemoveFile
-(FileInfoBlock* InBlock)
+(FileInfoBlock* InBlock, string InDirectory)
 {
   char									filename[32];
+  string                                s;
+
   if ( NULL == InBlock ) {
 	return;
   }
@@ -356,8 +359,12 @@ FileInfoBlockRemoveFile
 	return;
   }
 
-  sprintf(filename, "%s%d", fileInfoBlockPrefix, InBlock->index);
-  unlink(filename);
+  sprintf(filename, "%s%08d", fileInfoBlockPrefix, InBlock->index);
+  s = StringConcat(InDirectory, filename);
+  if ( unlink(s) ) {
+    fprintf(stderr, "Could not remove file %s : %s\n", s, strerror(errno));
+  }
+  FreeMemory(s);
 }
 
 /*****************************************************************************!

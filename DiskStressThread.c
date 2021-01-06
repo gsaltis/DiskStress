@@ -167,7 +167,7 @@ DiskStressThread
 		FileInfoBlockCreateFile(infoBlock, diskStressDirectory);
 		diskStressThreadFilesCreatedCount++;
 	  } else {
-		FileInfoBlockRemoveFile(infoBlock);
+		FileInfoBlockRemoveFile(infoBlock, diskStressDirectory);
 		FileInfoBlockClearBlock(infoBlock);
 		diskStressThreadFilesRemovedCount++;
 	  }
