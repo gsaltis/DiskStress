@@ -37,6 +37,9 @@ GetServerInfoID = 0;
 var
 GetRuntimeInfoID = 0;
 
+var
+FileBlockSize = 12;
+
 /*****************************************************************************!
  * Function : CBSystemInitialize
  *****************************************************************************/
@@ -525,7 +528,7 @@ CreateBlockGrid
 	section.style.width = sectionWidth;
 	console.log(x, y, pwidth, pheight);
  
-	k = Math.floor(sectionWidth / 10);
+	k = Math.floor(sectionWidth / FileBlockSize);
 
   while (section.lastChild ) {
 	  section.removeChild(section.lastChild);
@@ -539,7 +542,7 @@ CreateBlockGrid
   for (j = 0; j < InInfoPacket ; j++  ) {
     if ( i == k ) {
       left = 2;
-      top += 10;
+      top += FileBlockSize;
       i = 0;
     }
     d = document.createElement("div");
@@ -548,7 +551,7 @@ CreateBlockGrid
 	  d.className = "FileBlockEmpty";
 	  d.id = "Block" + j;
     section.appendChild(d);
-	  left += 10;
+	  left += FileBlockSize;
 		i++;
   }
 }
@@ -567,13 +570,13 @@ WebSocketIFHandleBlockInfoPacket
 	block = document.getElementById("Block" + j);
 	if ( block ) {
 	  if ( blocks[j] == "0") {
-	    block.className = "FileBlockUnUsed";
+	    block.className = "FileBlock FileBlockUnUsed";
 	  } else {
-        block.className = "FileBlockUsed";
+        block.className = "FileBlock FileBlockUsed";
   	  }
     }
   }
-  GetBlockInfoID = setTimeout(CBWebSocketIFGetBlockInfo, 10000);
+  GetBlockInfoID = setTimeout(CBWebSocketIFGetBlockInfo, 3000);
 }
 
 /*****************************************************************************!

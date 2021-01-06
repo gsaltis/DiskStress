@@ -229,25 +229,29 @@
     top                                 : 20px;
 }
 
+.FileBlock {
+    position                            : absolute;
+    width                               : 10px;
+    height                              : 10px;
+    transition                          : background 3s ease, height 2s ease, width 2s ease;
+    border-radius                       : 3px;
+  }
+
 .FileBlockUnUsed {
-     position                           : absolute;
-    width                               : 8px;
-    height                              : 8px;
-    background                          : #080;
+    background                          : #FFFFFF !important;
+    width                               : 3px  !important;
+    height                              : 3px  !important;
 }
 
 .FileBlockUsed {
-    position                            : absolute;
-    width                               : 8px;
-    height                              : 8px;
-    background                          : #800;
+    background                          : linear-gradient(#F00, #C00) !important;
+    width                               : 10px !important;
+    height                              : 10px !important;
+    border                              : solid 1px #800;
 }
 
 .FileBlockEmpty {
-    position                            : absolute;
-    width                               : 8px;
-    height                              : 8px;
-    background                          : #880;
+    background                          : #880 !important;
 }
 
 @keyframes UnusedToUsed {
